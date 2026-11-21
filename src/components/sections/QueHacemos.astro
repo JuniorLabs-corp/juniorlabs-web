@@ -5,19 +5,64 @@ import { site } from '../../content/site';
 const { id, title, intro, blocks } = site.queHacemos;
 ---
 
-<section id={id} aria-labelledby={`${id}-title`} class="py-section">
-	<Container>
-		<h2 id={`${id}-title`} class="font-mono text-3xl font-bold tracking-tight">{title}</h2>
-		<p class="mt-4 max-w-[60ch] leading-relaxed text-text-secondary">{intro}</p>
-		<ul class="mt-10 grid gap-8 md:grid-cols-3">
+<section id={id} aria-labelledby={`${id}-title`} class="que-hacemos py-section">
+	<Container class="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+		<!-- Título e intro acompañan la lectura de los bloques en escritorio -->
+		<div class="lg:sticky lg:top-28 lg:self-start">
+			<h2 id={`${id}-title`} class="section-title font-mono font-bold">{title}</h2>
+			<p class="mt-4 max-w-[38ch] text-lg leading-relaxed text-pretty text-text-secondary">{intro}</p>
+		</div>
+
+		<ul class="blocks">
 			{
 				blocks.map((block) => (
-					<li>
-						<h3 class="text-lg font-semibold">{block.title}</h3>
-						<p class="mt-2 leading-relaxed text-text-secondary">{block.text}</p>
+					<li class="block-row">
+						<h3 class="text-lg font-semibold sm:text-xl">{block.title}</h3>
+						<p class="mt-2 max-w-[52ch] leading-relaxed text-pretty text-text-secondary">{block.text}</p>
 					</li>
 				))
 			}
 		</ul>
 	</Container>
 </section>
+
+<style>
+	@layer components {
+		.que-hacemos {
+			/* Banda de superficie que separa la sección del hero */
+			background: var(--surface);
+			border-block: 1px solid var(--border);
+		}
+
+		.section-title {
+			font-size: clamp(1.875rem, 1.4rem + 2vw, 2.75rem);
+			line-height: 1.1;
+			letter-spacing: -0.03em;
+		}
+
+		.block-row {
+			padding-block: 1.75rem;
+			border-top: 1px solid var(--border);
+		}
+
+		.block-row:last-child {
+			border-bottom: 1px solid var(--border);
+		}
+
+		@media (width >= 64rem) {
+			.block-row {
+				padding-block: 2.25rem;
+			}
+
+			.block-row:first-child {
+				border-top: 0;
+				padding-top: 0;
+			}
+
+			.block-row:last-child {
+				border-bottom: 0;
+				padding-bottom: 0;
+			}
+		}
+	}
+</style>
