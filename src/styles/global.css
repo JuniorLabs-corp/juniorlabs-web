@@ -93,16 +93,20 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* deja libre el header fijo (en móvil ocupa dos filas) al saltar a anclas o mover el foco */
+    scroll-padding-top: 9rem;
+  }
+
+  @media (width >= 40rem) {
+    html {
+      scroll-padding-top: 5rem;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
     }
-  }
-
-  [id] {
-    scroll-margin-top: 5rem;
   }
 
   :focus-visible {
