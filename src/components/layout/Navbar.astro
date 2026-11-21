@@ -9,7 +9,8 @@ const panelId = 'menu-principal';
 ---
 
 <div data-navbar>
-	<Container class="flex h-18 items-center justify-between gap-3 sm:gap-6">
+	<!-- min-h + flex-wrap: con texto grande la barra baja a dos filas en vez de desbordarse -->
+	<Container class="flex min-h-18 flex-wrap items-center justify-between gap-x-3 gap-y-2 py-2 sm:gap-x-6">
 		<a href="/" class="shrink-0 rounded-md">
 			<img
 				src={LogoLight.src}
@@ -87,12 +88,21 @@ const panelId = 'menu-principal';
 	if (root && button && panel) {
 		const desktop = window.matchMedia('(width >= 64rem)');
 
+		const isOpen = () => button.getAttribute('aria-expanded') === 'true';
+		const focusInside = (el: Element) => el.contains(document.activeElement);
+
+		// El panel nunca pasa del borde inferior de la pantalla; si no cabe, se desplaza por dentro
+		const fitPanel = () => {
+			if (!isOpen()) return;
+			panel.style.maxHeight = `${Math.max(0, window.innerHeight - panel.getBoundingClientRect().top)}px`;
+		};
+
 		const setOpen = (open: boolean, { restoreFocus = false } = {}) => {
 			button.setAttribute('aria-expanded', String(open));
 			panel.hidden = !open;
+			if (open) fitPanel();
 			if (!open && restoreFocus) button.focus();
 		};
-		const isOpen = () => button.getAttribute('aria-expanded') === 'true';
 
 		button.addEventListener('click', () => setOpen(!isOpen()));
 
@@ -101,16 +111,33 @@ const panelId = 'menu-principal';
 			if ((event.target as Element).closest('a')) setOpen(false);
 		});
 
+		// Escape cierra; el foco vuelve al botón solo si estaba dentro del header
 		document.addEventListener('keydown', (event) => {
-			if (event.key === 'Escape' && isOpen()) setOpen(false, { restoreFocus: true });
+			if (event.key === 'Escape' && isOpen()) setOpen(false, { restoreFocus: focusInside(root) });
 		});
 
-		document.addEventListener('click', (event) => {
+		// pointerdown en vez de click: iOS no dispara click al tocar texto no interactivo
+		document.addEventListener('pointerdown', (event) => {
 			if (isOpen() && !root.contains(event.target as Node)) setOpen(false);
 		});
 
+		window.addEventListener('resize', fitPanel);
+
+		// Al pasar a escritorio el CSS oculta el panel antes de este script, así que se recuerda
+		// si el foco estaba ahí (focusout sin destino = el elemento desapareció, no que el usuario se movió)
+		let focusWasInPanel = false;
+		panel.addEventListener('focusin', () => (focusWasInPanel = true));
+		panel.addEventListener('focusout', (event) => {
+			if (event.relatedTarget) focusWasInPanel = false;
+		});
+
 		desktop.addEventListener('change', (event) => {
-			if (event.matches) setOpen(false);
+			if (!event.matches) return;
+			setOpen(false);
+			if (focusWasInPanel && (document.activeElement === document.body || focusInside(panel))) {
+				root.querySelector<HTMLAnchorElement>('a[href="/"]')?.focus();
+			}
+			focusWasInPanel = false;
 		});
 	}
 </script>
@@ -191,14 +218,16 @@ const panelId = 'menu-principal';
 		}
 
 		[aria-expanded='true'] .menu-icon::before {
-			transform: translateY(0.25rem) rotate(45deg);
+			transform: translateY(0.1875rem) rotate(45deg);
 		}
 
 		[aria-expanded='true'] .menu-icon::after {
-			transform: translateY(-0.25rem) rotate(-45deg);
+			transform: translateY(-0.1875rem) rotate(-45deg);
 		}
 
 		.menu-panel {
+			overflow-y: auto;
+			overscroll-behavior: contain;
 			opacity: 1;
 			transform: translateY(0);
 			transition:
