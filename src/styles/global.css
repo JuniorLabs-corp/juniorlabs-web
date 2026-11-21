@@ -84,7 +84,36 @@
   --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
 }
 
+/* Layout: ancho máximo de página y ritmo vertical entre secciones (max-w-page, py-section) */
+@theme {
+  --container-page: 72rem;
+  --spacing-section: clamp(4rem, 10vw, 8rem);
+}
+
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    /* deja libre el header fijo (en móvil ocupa dos filas) al saltar a anclas o mover el foco */
+    scroll-padding-top: 9rem;
+  }
+
+  @media (width >= 40rem) {
+    html {
+      scroll-padding-top: 5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
   body {
     background-color: var(--background);
     color: var(--text);

@@ -1,0 +1,36 @@
+---
+import Container from './Container.astro';
+import LogoLight from '../../assets/brand/logo-light.svg';
+import LogoDark from '../../assets/brand/logo-dark.svg';
+import { site } from '../../content/site';
+
+const { brand, links, cta } = site.nav;
+---
+
+<Container class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 py-4">
+	<a href="/" aria-label={`${brand}, inicio`} class="shrink-0">
+		<img src={LogoLight.src} width={LogoLight.width} height={LogoLight.height} alt="" class="h-7 w-auto dark:hidden" />
+		<img src={LogoDark.src} width={LogoDark.width} height={LogoDark.height} alt="" class="hidden h-7 w-auto dark:block" />
+	</a>
+
+	<nav aria-label="Principal" class="order-last w-full sm:order-none sm:w-auto">
+		<ul class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-text-secondary">
+			{
+				links.map((link) => (
+					<li>
+						<a href={link.href} class="hover:text-text">
+							{link.label}
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</nav>
+
+	<a
+		href={cta.href}
+		class="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-on-accent active:scale-[0.97]"
+	>
+		{cta.label}
+	</a>
+</Container>

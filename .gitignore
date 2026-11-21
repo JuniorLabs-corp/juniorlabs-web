@@ -27,3 +27,6 @@ pnpm-debug.log*
 #other files
 .wrangler/
 .dev.vars
+
+# documentación y referencias locales
+docs/
