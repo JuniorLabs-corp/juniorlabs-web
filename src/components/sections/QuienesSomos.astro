@@ -3,16 +3,46 @@ import Container from '../layout/Container.astro';
 import { site } from '../../content/site';
 
 const { id, title, paragraphs, pending } = site.quienesSomos;
+// pending: [línea de Roger, línea de Jorge, fotos de ambos] — literales de Marketing, sin rellenar
+const [rogerLine, jorgeLine, photosNote] = pending;
+const founders = [rogerLine, jorgeLine];
 ---
 
 <section id={id} aria-labelledby={`${id}-title`} class="py-section">
-	<Container>
-		<h2 id={`${id}-title`} class="font-mono text-3xl font-bold tracking-tight">{title}</h2>
-		<div class="mt-4 flex max-w-[60ch] flex-col gap-4 leading-relaxed text-text-secondary">
-			{paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+	<Container class="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+		<div>
+			<h2 id={`${id}-title`} class="section-title">{title}</h2>
+			<div class="mt-4 flex max-w-[38ch] flex-col gap-4 text-lg leading-relaxed text-pretty text-text-secondary">
+				{paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+			</div>
 		</div>
-		<ul class="mt-8 flex flex-col gap-2 text-sm text-text-secondary">
-			{pending.map((item) => <li>{item}</li>)}
-		</ul>
+
+		<div>
+			<!-- role="list": Safari/VoiceOver quita la semántica de lista cuando list-style es none -->
+			<ul role="list" class="grid grid-cols-2 gap-4 sm:gap-6">
+				{
+					founders.map((line) => (
+						<li data-founder>
+							{/* Hueco para la foto: se reemplaza cuando Marketing entregue las fotos */}
+							<div data-photo-slot class="photo-slot" aria-hidden="true" />
+							<p class="mt-3 text-sm leading-snug text-text-secondary">{line}</p>
+						</li>
+					))
+				}
+			</ul>
+			<p class="mt-4 text-sm text-text-secondary">{photosNote}</p>
+		</div>
 	</Container>
 </section>
+
+<style>
+	@layer components {
+		.photo-slot {
+			aspect-ratio: 4 / 5;
+			/* Fondo de superficie + borde punteado marcado: se lee como espacio reservado en claro y oscuro */
+			background: var(--surface);
+			border: 1.5px dashed color-mix(in srgb, var(--text-secondary) 45%, transparent);
+			border-radius: 1.25rem;
+		}
+	}
+</style>
