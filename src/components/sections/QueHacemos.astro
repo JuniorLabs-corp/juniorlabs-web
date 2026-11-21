@@ -13,7 +13,8 @@ const { id, title, intro, blocks } = site.queHacemos;
 			<p class="mt-4 max-w-[38ch] text-lg leading-relaxed text-pretty text-text-secondary">{intro}</p>
 		</div>
 
-		<ul class="blocks">
+		<!-- role="list": Safari/VoiceOver quita la semántica de lista cuando list-style es none -->
+		<ul class="blocks" role="list">
 			{
 				blocks.map((block) => (
 					<li class="block-row">
@@ -45,10 +46,6 @@ const { id, title, intro, blocks } = site.queHacemos;
 			border-top: 1px solid var(--border);
 		}
 
-		.block-row:last-child {
-			border-bottom: 1px solid var(--border);
-		}
-
 		@media (width >= 64rem) {
 			.block-row {
 				padding-block: 2.25rem;
@@ -60,7 +57,6 @@ const { id, title, intro, blocks } = site.queHacemos;
 			}
 
 			.block-row:last-child {
-				border-bottom: 0;
 				padding-bottom: 0;
 			}
 		}
