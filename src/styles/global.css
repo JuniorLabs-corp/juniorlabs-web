@@ -84,7 +84,32 @@
   --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
 }
 
+/* Layout: ancho máximo de página y ritmo vertical entre secciones (max-w-page, py-section) */
+@theme {
+  --container-page: 72rem;
+  --spacing-section: clamp(4rem, 10vw, 8rem);
+}
+
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  [id] {
+    scroll-margin-top: 5rem;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
   body {
     background-color: var(--background);
     color: var(--text);

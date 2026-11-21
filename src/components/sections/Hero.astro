@@ -1,0 +1,29 @@
+---
+import Container from '../layout/Container.astro';
+import { site } from '../../content/site';
+
+const { title, subtitle, primaryCta, secondaryCta } = site.hero;
+---
+
+<section aria-labelledby="hero-title" class="py-section">
+	<Container>
+		<h1 id="hero-title" class="max-w-[22ch] font-mono text-4xl font-bold leading-[1.1] tracking-tight text-balance sm:text-5xl">
+			{title}
+		</h1>
+		<p class="mt-6 max-w-[60ch] text-lg leading-relaxed text-text-secondary">{subtitle}</p>
+		<div class="mt-8 flex flex-wrap gap-3">
+			<a
+				href={primaryCta.href}
+				class="rounded-full bg-accent px-5 py-3 font-semibold text-on-accent active:scale-[0.97]"
+			>
+				{primaryCta.label}
+			</a>
+			<a
+				href={secondaryCta.href}
+				class="rounded-full border border-border px-5 py-3 font-semibold hover:bg-surface active:scale-[0.97]"
+			>
+				{secondaryCta.label}
+			</a>
+		</div>
+	</Container>
+</section>

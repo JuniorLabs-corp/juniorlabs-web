@@ -1,0 +1,15 @@
+---
+import Container from './Container.astro';
+import { site } from '../../content/site';
+
+const { tagline, copyright } = site.footer;
+const { email, mailto } = site.contact;
+---
+
+<Container class="flex flex-col gap-3 py-12 text-sm text-text-secondary sm:flex-row sm:items-end sm:justify-between">
+	<div class="flex flex-col gap-2">
+		<p class="max-w-[40ch] text-text">{tagline}</p>
+		<a href={mailto} class="underline underline-offset-4 hover:text-text">{email}</a>
+	</div>
+	<p>{copyright}</p>
+</Container>
