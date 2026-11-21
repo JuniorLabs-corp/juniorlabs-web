@@ -75,13 +75,20 @@ export const site = {
 		id: 'quienes-somos',
 		title: 'Quiénes somos',
 		paragraphs: [
-			'JuniorLabs es una empresa de software en México. La empezamos Roger y Jorge.',
+			// Jorge primero: {JR_} viene de Jorge y Rogelio
+			'JuniorLabs es una empresa de software en México. La empezamos Jorge y Rogelio.',
 			'Estamos construyendo nuestros primeros productos, pensados para negocios que operan aquí.',
 		],
-		pending: [
-			'[PENDIENTE: una línea de presentación de Roger, con el nombre que quieran mostrar]',
-			'[PENDIENTE: una línea de presentación de Jorge, con apellido y el nombre que quieran mostrar]',
-			'[PENDIENTE: fotos de ambos]',
+		// Sin fotos de los fundadores (decisión de JuniorLabs): la sección usa sus iniciales, J y R.
+		founders: [
+			{
+				initial: 'J',
+				line: '[PENDIENTE: una línea de presentación de Jorge, con apellido y el nombre que quieran mostrar]',
+			},
+			{
+				initial: 'R',
+				line: '[PENDIENTE: una línea de presentación de Rogelio, con el nombre que quieran mostrar]',
+			},
 		],
 	},
 

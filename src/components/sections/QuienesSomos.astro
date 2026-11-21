@@ -2,10 +2,7 @@
 import Container from '../layout/Container.astro';
 import { site } from '../../content/site';
 
-const { id, title, paragraphs, pending } = site.quienesSomos;
-// pending: [línea de Roger, línea de Jorge, fotos de ambos] — literales de Marketing, sin rellenar
-const [rogerLine, jorgeLine, photosNote] = pending;
-const founders = [rogerLine, jorgeLine];
+const { id, title, paragraphs, founders } = site.quienesSomos;
 ---
 
 <section id={id} aria-labelledby={`${id}-title`} class="py-section">
@@ -17,33 +14,41 @@ const founders = [rogerLine, jorgeLine];
 			</div>
 		</div>
 
-		<!-- max-w: en tableta los huecos no crecen más que en escritorio -->
+		<!-- max-w: en tableta los recuadros no crecen más que en escritorio -->
 		<div class="max-w-xl lg:max-w-none">
 			<!-- role="list": Safari/VoiceOver quita la semántica de lista cuando list-style es none -->
 			<ul role="list" class="grid grid-cols-2 gap-4 sm:gap-6">
 				{
-					founders.map((line) => (
+					founders.map((founder) => (
 						<li data-founder>
-							{/* Hueco para la foto: se reemplaza cuando Marketing entregue las fotos */}
-							<div data-photo-slot class="photo-slot" aria-hidden="true" />
-							<p class="mt-3 text-sm leading-snug break-words text-text-secondary">{line}</p>
+							{/* Inicial de cada fundador en lugar de foto: J y R forman {JR_} */}
+							<div data-initial class="initial" aria-hidden="true">
+								{founder.initial}
+							</div>
+							<p class="mt-3 text-sm leading-snug break-words text-text-secondary">{founder.line}</p>
 						</li>
 					))
 				}
 			</ul>
-			<p class="mt-4 text-sm text-text-secondary">{photosNote}</p>
 		</div>
 	</Container>
 </section>
 
 <style>
 	@layer components {
-		.photo-slot {
-			aspect-ratio: 4 / 5;
-			/* Fondo de superficie + borde punteado marcado: se lee como espacio reservado en claro y oscuro */
-			background: var(--surface);
-			border: 1.5px dashed color-mix(in srgb, var(--text-secondary) 45%, transparent);
+		.initial {
+			display: grid;
+			place-items: center;
+			aspect-ratio: 1;
 			border-radius: 1.25rem;
+			background: var(--surface);
+			border: 1px solid var(--border);
+			color: var(--text);
+			font-family: var(--font-mono);
+			font-weight: 700;
+			font-size: clamp(3.5rem, 2rem + 6vw, 6rem);
+			line-height: 1;
+			letter-spacing: -0.04em;
 		}
 	}
 </style>
