@@ -30,3 +30,6 @@ pnpm-debug.log*
 
 # documentación y referencias locales
 docs/
+
+# kit de marca (se conserva en local, no se versiona)
+assets/
