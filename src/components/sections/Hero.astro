@@ -1,29 +1,115 @@
 ---
 import Container from '../layout/Container.astro';
+import LogoLight from '../../assets/brand/logo-light.svg';
+import LogoDark from '../../assets/brand/logo-dark.svg';
 import { site } from '../../content/site';
 
 const { title, subtitle, primaryCta, secondaryCta } = site.hero;
 ---
 
-<section aria-labelledby="hero-title" class="py-section">
-	<Container>
-		<h1 id="hero-title" class="max-w-[22ch] font-mono text-4xl font-bold leading-[1.1] tracking-tight text-balance sm:text-5xl">
-			{title}
-		</h1>
-		<p class="mt-6 max-w-[60ch] text-lg leading-relaxed text-text-secondary">{subtitle}</p>
-		<div class="mt-8 flex flex-wrap gap-3">
-			<a
-				href={primaryCta.href}
-				class="rounded-full bg-accent px-5 py-3 font-semibold text-on-accent active:scale-[0.97]"
-			>
-				{primaryCta.label}
-			</a>
-			<a
-				href={secondaryCta.href}
-				class="rounded-full border border-border px-5 py-3 font-semibold hover:bg-surface active:scale-[0.97]"
-			>
-				{secondaryCta.label}
-			</a>
+<section aria-labelledby="hero-title" class="hero">
+	<Container class="grid items-center gap-8 sm:gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16">
+		<!--
+			Espacio reservado para la marca {JR_}. Hoy es estático;
+			feat/logo-cohete lo reemplaza por la animación del cohete.
+		-->
+		<div data-hero-logo class="hero-logo lg:order-last">
+			<img
+				src={LogoLight.src}
+				width={LogoLight.width}
+				height={LogoLight.height}
+				alt=""
+				class="h-auto w-full dark:hidden"
+			/>
+			<img
+				src={LogoDark.src}
+				width={LogoDark.width}
+				height={LogoDark.height}
+				alt=""
+				class="hidden h-auto w-full dark:block"
+			/>
+		</div>
+
+		<div class="min-w-0">
+			<h1 id="hero-title" class="hero-title font-mono font-bold text-balance">
+				{title}
+			</h1>
+			<p class="mt-6 max-w-[34rem] text-lg leading-relaxed text-pretty text-text-secondary sm:text-xl">
+				{subtitle}
+			</p>
+			<div class="mt-8 flex flex-wrap gap-3 sm:mt-10">
+				<a href={primaryCta.href} class="hero-cta bg-accent text-on-accent">
+					{primaryCta.label}
+				</a>
+				<a href={secondaryCta.href} class="hero-cta border border-border text-text hover:bg-surface">
+					{secondaryCta.label}
+				</a>
+			</div>
 		</div>
 	</Container>
 </section>
+
+<style>
+	.hero {
+		/* El hero ocupa casi toda la primera pantalla sin empujar el contenido fuera en móviles bajos */
+		padding-block: clamp(3rem, 8vw, 6rem);
+		min-height: min(52rem, calc(100svh - 4.5rem));
+		display: grid;
+		align-items: center;
+	}
+
+	.hero-title {
+		/* Tamaño fluido: 2.25rem en 375px → 4rem en escritorio */
+		font-size: clamp(2.25rem, 1.4rem + 3.6vw, 4rem);
+		line-height: 1.05;
+		letter-spacing: -0.035em;
+		max-width: 19ch;
+		overflow-wrap: break-word;
+	}
+
+	.hero-logo {
+		/* Área con proporción fija para que la animación futura no mueva el layout */
+		display: grid;
+		place-items: center;
+		aspect-ratio: 5 / 2;
+		width: min(100%, 24rem);
+		padding: 1rem 1.75rem;
+		border-radius: 1.5rem;
+		background: var(--surface);
+		border: 1px solid var(--border);
+	}
+
+	@media (width >= 64rem) {
+		.hero-logo {
+			width: 100%;
+			aspect-ratio: 4 / 3;
+			padding: 3rem;
+			border-radius: 2.25rem;
+		}
+	}
+
+	.hero-cta {
+		display: inline-flex;
+		align-items: center;
+		min-height: 3rem;
+		padding-inline: 1.5rem;
+		border-radius: 9999px;
+		font-weight: 600;
+		transition:
+			transform 150ms cubic-bezier(0.23, 1, 0.32, 1),
+			background-color 150ms ease;
+	}
+
+	.hero-cta:active {
+		transform: scale(0.97);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hero-cta {
+			transition: background-color 150ms ease;
+		}
+		.hero-cta:active {
+			transform: none;
+		}
+	}
+</style>
