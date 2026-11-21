@@ -93,14 +93,8 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    /* deja libre el header fijo (en móvil ocupa dos filas) al saltar a anclas o mover el foco */
-    scroll-padding-top: 9rem;
-  }
-
-  @media (width >= 40rem) {
-    html {
-      scroll-padding-top: 5rem;
-    }
+    /* deja libre el header fijo (4.5rem) al saltar a anclas o mover el foco */
+    scroll-padding-top: 5.5rem;
   }
 
   @media (prefers-reduced-motion: reduce) {
