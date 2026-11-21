@@ -1,1 +1,94 @@
 @import "tailwindcss";
+@import "@fontsource-variable/jetbrains-mono";
+
+/* dark: sigue al sistema, salvo que data-theme fuerce un modo */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
+
+/* Paleta Junior Labs — fuente: assets/junior-labs-brand/palette/colors.css */
+:root {
+  color-scheme: light dark;
+  --background: #F4F7FA;
+  --surface: #FFFFFF;
+  --border: #D5DCE4;
+  --text: #14284B;
+  --text-secondary: #4A5C78;
+  --accent: #1D9E75;
+  --on-accent: #06231A;
+  --brand-navy: #14284B;
+  --logo-letters: #14284B;
+  --logo-wordmark: #14284B;
+  --illus-window-glass: #BFE6DC;
+  --illus-rocket-body: #FFFFFF;
+  --illus-flame: #FFB020;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: #0B1730;
+    --surface: #14284B;
+    --border: #23406E;
+    --text: #E6ECF5;
+    --text-secondary: #9FB0CC;
+    --accent: #2FD1A0;
+    --logo-letters: #FFFFFF;
+    --logo-wordmark: #C9D3E3;
+    --illus-window-glass: #0E2B4D;
+    --illus-rocket-body: #1B3560;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0B1730;
+  --surface: #14284B;
+  --border: #23406E;
+  --text: #E6ECF5;
+  --text-secondary: #9FB0CC;
+  --accent: #2FD1A0;
+  --logo-letters: #FFFFFF;
+  --logo-wordmark: #C9D3E3;
+  --illus-window-glass: #0E2B4D;
+  --illus-rocket-body: #1B3560;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Tokens de Tailwind: bg-background, text-text-secondary, border-border, bg-accent, font-mono… */
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-secondary: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-brand-navy: var(--brand-navy);
+  --color-logo-letters: var(--logo-letters);
+  --color-logo-wordmark: var(--logo-wordmark);
+  --color-illus-window-glass: var(--illus-window-glass);
+  --color-illus-rocket-body: var(--illus-rocket-body);
+  --color-illus-flame: var(--illus-flame);
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+}
+
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
