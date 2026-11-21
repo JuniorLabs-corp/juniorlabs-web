@@ -1,5 +1,5 @@
 {
-  "name": "tmp-astro",
+  "name": "juniorlabs-web",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -12,6 +12,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@tailwindcss/vite": "^4.3.5",
     "astro": "^7.4.13",
     "tailwindcss": "^4.3.5"

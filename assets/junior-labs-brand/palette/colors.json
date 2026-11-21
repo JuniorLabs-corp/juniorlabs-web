@@ -1,0 +1,32 @@
+{
+  "light": {
+    "background": "#F4F7FA",
+    "surface": "#FFFFFF",
+    "border": "#D5DCE4",
+    "text": "#14284B",
+    "text-secondary": "#4A5C78",
+    "accent": "#1D9E75",
+    "on-accent": "#06231A",
+    "brand-navy": "#14284B",
+    "logo-letters": "#14284B",
+    "logo-wordmark": "#14284B",
+    "illus-window-glass": "#BFE6DC",
+    "illus-rocket-body": "#FFFFFF",
+    "illus-flame": "#FFB020"
+  },
+  "dark": {
+    "background": "#0B1730",
+    "surface": "#14284B",
+    "border": "#23406E",
+    "text": "#E6ECF5",
+    "text-secondary": "#9FB0CC",
+    "accent": "#2FD1A0",
+    "on-accent": "#06231A",
+    "brand-navy": "#14284B",
+    "logo-letters": "#FFFFFF",
+    "logo-wordmark": "#C9D3E3",
+    "illus-window-glass": "#0E2B4D",
+    "illus-rocket-body": "#1B3560",
+    "illus-flame": "#FFB020"
+  }
+}
