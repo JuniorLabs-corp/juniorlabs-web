@@ -1,10 +1,11 @@
 ---
 import Container from '../layout/Container.astro';
+import BrandMark from '../brand/BrandMark.astro';
 import { site } from '../../content/site';
 
 const { id, title, paragraphs, founders } = site.quienesSomos;
 
-// La marca {JR_} se muestra en la tipografía del logo dentro del texto
+// La marca {JR_} se muestra con la tipografía y los colores del logo dentro del texto
 const BRAND = '{JR_}';
 ---
 
@@ -18,7 +19,7 @@ const BRAND = '{JR_}';
 						<p>
 							{paragraph.split(BRAND).map((part, i) => (
 								<>
-									{i > 0 && <span class="font-mono font-bold whitespace-nowrap text-text">{BRAND}</span>}
+									{i > 0 && <BrandMark />}
 									{part}
 								</>
 							))}
