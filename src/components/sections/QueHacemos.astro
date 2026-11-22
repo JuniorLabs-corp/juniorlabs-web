@@ -9,7 +9,7 @@ const { id, title, intro, blocks } = site.queHacemos;
 	<Container class="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
 		<!-- Título e intro acompañan la lectura de los bloques en escritorio -->
 		<div class="lg:sticky lg:top-28 lg:self-start">
-			<h2 id={`${id}-title`} class="section-title font-mono font-bold">{title}</h2>
+			<h2 id={`${id}-title`} class="section-title">{title}</h2>
 			<p class="mt-4 max-w-[38ch] text-lg leading-relaxed text-pretty text-text-secondary">{intro}</p>
 		</div>
 
@@ -33,12 +33,6 @@ const { id, title, intro, blocks } = site.queHacemos;
 			/* Banda de superficie que separa la sección del hero */
 			background: var(--surface);
 			border-block: 1px solid var(--border);
-		}
-
-		.section-title {
-			font-size: clamp(1.875rem, 1.4rem + 2vw, 2.75rem);
-			line-height: 1.1;
-			letter-spacing: -0.03em;
 		}
 
 		.block-row {

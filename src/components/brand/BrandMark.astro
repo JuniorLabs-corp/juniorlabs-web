@@ -1,0 +1,17 @@
+---
+/**
+ * {JR_} como texto dentro de un párrafo, con los colores del logo:
+ * llaves y cursor en accent (menta), JR en el color de las letras del logo.
+ */
+interface Props {
+	class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<span data-brand class:list={['font-mono font-bold whitespace-nowrap', className]}
+	><span data-part="accent" class="text-accent">{'{'}</span><span data-part="letters" class="text-logo-letters"
+		>JR</span
+	><span data-part="accent" class="text-accent">_</span><span data-part="accent" class="text-accent">{'}'}</span></span
+>
