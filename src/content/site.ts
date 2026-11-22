@@ -9,8 +9,20 @@ export interface Link {
 	href: string;
 }
 
+/** Ficha de producto en /proyectos y en la sección de la home. */
+export interface Proyecto {
+	name: string;
+	status: string;
+	description: string;
+	/** Palabra de la descripción que enlaza al correo (mailto). Si no aparece en la descripción, el build falla. */
+	contactWord?: string;
+}
+
 const email = 'contacto@juniorlabs.com.mx';
 const mailto = `mailto:${email}`;
+
+const proyectosIntro =
+	'Aquí van a vivir nuestros productos cuando ya se puedan usar. Hoy estamos construyendo el primero.';
 
 export const site = {
 	meta: {
@@ -31,8 +43,8 @@ export const site = {
 			{ label: 'Inicio', href: '/' },
 			{ label: 'Qué hacemos', href: '/#que-hacemos' },
 			{ label: 'Quiénes somos', href: '/#quienes-somos' },
-			// Cuando exista la página /proyectos (feat/proyectos), también se puede enlazar ahí.
-			{ label: 'Proyectos', href: '/#proyectos' },
+			// La página /proyectos ya existe; la sección #proyectos sigue en la home
+			{ label: 'Proyectos', href: '/proyectos/' },
 		] satisfies Link[],
 		cta: { label: 'Escríbenos', href: mailto } satisfies Link,
 		// Alternativa: { label: 'Contacto', href: mailto }
@@ -97,14 +109,23 @@ export const site = {
 	proyectos: {
 		id: 'proyectos',
 		title: 'Proyectos',
-		intro: 'Aquí van a vivir nuestros productos cuando ya se puedan usar. Hoy estamos construyendo el primero.',
+		intro: proyectosIntro,
 		status: 'Próximamente',
-		card: {
-			name: '[PENDIENTE: nombre del primer producto]',
-			status: 'Próximamente',
-			description:
-				'Pronto vamos a contar qué estamos construyendo. Si quieres saber cuándo esté listo, escríbenos.',
+		// Página /proyectos
+		page: {
+			title: 'Proyectos | JuniorLabs',
+			description: proyectosIntro,
 		},
+		// Fichas de producto: para publicar un producto, se agrega un elemento a esta lista.
+		items: [
+			{
+				name: '[PENDIENTE: nombre del primer producto]',
+				status: 'Próximamente',
+				description:
+					'Pronto vamos a contar qué estamos construyendo. Si quieres saber cuándo esté listo, escríbenos.',
+				contactWord: 'escríbenos',
+			},
+		] satisfies Proyecto[],
 	},
 
 	footer: {
