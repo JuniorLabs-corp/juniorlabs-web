@@ -18,7 +18,7 @@ import { DETAILS, LOGO, VIEWBOX } from './rocket-geometry';
 	<svg class="stage-layer" data-smoke></svg>
 	<div class="rocket-carrier" data-carrier>
 		<div class="rocket-land" data-land>
-		<div class="rocket-sway" data-sway>
+			<div class="rocket-sway" data-sway>
 			<svg class="rocket-svg" viewBox={VIEWBOX} overflow="visible" data-rocket>
 				<g class="flame" data-flame>
 					<path class="flame-outer" d={DETAILS.flameOuter}></path>
@@ -47,9 +47,8 @@ import { DETAILS, LOGO, VIEWBOX } from './rocket-geometry';
 <script>
 	import { startRocketScene } from './rocket-scene';
 
-	const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+	// gsap.matchMedia decide (reduced motion, soporte de scripting); si las preferencias cambian, se adapta
 	const start = () => {
-		if (reduce.matches) return;
 		startRocketScene().catch(() => {
 			/* si algo falla, la página queda con el logo y el cohete estáticos */
 		});

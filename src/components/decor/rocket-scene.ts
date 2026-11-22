@@ -44,8 +44,11 @@ export async function startRocketScene() {
 	]);
 	gsap.registerPlugin(ScrollTrigger, MorphSVGPlugin);
 
+	// Misma condición que el CSS del hero (Hero.astro): sin soporte de (scripting) no hay escena alta y sticky
 	const mm = gsap.matchMedia();
-	mm.add('(prefers-reduced-motion: no-preference)', () => setup(gsap, ScrollTrigger, { stage, home, heroScene }));
+	mm.add('(prefers-reduced-motion: no-preference) and (scripting: enabled)', () =>
+		setup(gsap, ScrollTrigger, { stage, home, heroScene }),
+	);
 }
 
 function setup(
@@ -69,17 +72,24 @@ function setup(
 	const starsSvg = q<SVGSVGElement>('[data-stars]');
 	const smokeSvg = q<SVGSVGElement>('[data-smoke]');
 	const heroCopy = document.querySelector<HTMLElement>('[data-hero-copy]');
+	const heroCtas = document.querySelector<HTMLElement>('[data-hero-ctas]');
 	const pad = document.querySelector<HTMLElement>('[data-rocket-pad]');
 
 	// ---------- Posiciones (se recalculan en cada refresh de ScrollTrigger) ----------
 	const vw = () => window.innerWidth;
 	const vh = () => window.innerHeight;
 
-	/** El logo del hero está en un contenedor sticky: su posición en pantalla es estable durante la escena */
+	const sticky = home.closest<HTMLElement>('.hero-sticky') ?? heroScene;
+	/**
+	 * Pose del logo al inicio de la escena, sin importar el scroll actual (recarga a mitad de página,
+	 * enlace con #ancla, resize): posición del logo dentro del contenedor sticky + su `top` fijo.
+	 */
 	const homePose = () => {
 		const r = home.getBoundingClientRect();
+		const st = sticky.getBoundingClientRect();
+		const stickyTop = parseFloat(getComputedStyle(sticky).top) || 0;
 		const s = r.width / LOGO_SPAN;
-		return { x: r.left + r.width / 2 - 200, y: r.top + r.height / 2 - 200, scale: s };
+		return { x: r.left + r.width / 2 - 200, y: stickyTop + (r.top - st.top) + r.height / 2 - 200, scale: s };
 	};
 	/** Cohete grande en el centro del hero, antes de despegar */
 	const stagePose = () => {
@@ -123,7 +133,7 @@ function setup(
 		defaults: { ease: 'power2.inOut' },
 		scrollTrigger: {
 			trigger: heroScene,
-			start: 'top top',
+			start: 0,
 			end: 'bottom bottom',
 			scrub: 0.6,
 			invalidateOnRefresh: true,
@@ -132,8 +142,14 @@ function setup(
 
 	hero
 		.addLabel('morph', 0)
-		.to(heroCopy, { autoAlpha: 0, y: -24, duration: 2.2, ease: 'power1.in' }, 'morph')
-		.to(carrier, { x: () => stagePose().x, y: () => stagePose().y, scale: () => stagePose().scale, duration: 5 }, 'morph')
+		.to(heroCopy, { opacity: 0, y: -24, duration: 2.2, ease: 'power1.in' }, 'morph')
+		.to(heroCtas, { autoAlpha: 0, duration: 1.6, ease: 'power1.in' }, 'morph')
+		.fromTo(
+			carrier,
+			{ x: () => homePose().x, y: () => homePose().y, scale: () => homePose().scale },
+			{ x: () => stagePose().x, y: () => stagePose().y, scale: () => stagePose().scale, duration: 5 },
+			'morph',
+		)
 		.to(wordmark, { opacity: 0, x: 30, duration: 2, ease: 'power2.in' }, 'morph');
 
 	pieces.forEach((p, i) => {
@@ -172,10 +188,12 @@ function setup(
 				end: 'max',
 				scrub: 0.6,
 				invalidateOnRefresh: true,
-				onUpdate: (self) => {
-					if (self.progress > 0.985 && !landed) touchdown();
-					else if (self.progress < 0.9 && landed) liftAgain();
-				},
+			},
+			// progreso de la animación (va 0.6 s detrás del scroll): toca cuando de verdad llega al suelo
+			onUpdate: () => {
+				const pr = landing!.progress();
+				if (pr > 0.985 && !landed) touchdown();
+				else if (pr < 0.9 && landed) liftAgain();
 			},
 		});
 		/*
@@ -219,7 +237,14 @@ function setup(
 		starsSvg.appendChild(c);
 		return { c, x: Math.random(), base: Math.random(), depth: 0.04 + Math.random() * 0.22, o: 0.25 + Math.random() * 0.75 };
 	});
-	const starsOpacity = () => (matchMedia('(prefers-color-scheme: dark)').matches && document.documentElement.dataset.theme !== 'light') || document.documentElement.dataset.theme === 'dark' ? 0.7 : 0.18;
+	let lastScroll = -1;
+	const darkMq = window.matchMedia('(prefers-color-scheme: dark)');
+	const starsOpacity = () => {
+		const t = document.documentElement.dataset.theme;
+		return t === 'dark' || (t !== 'light' && darkMq.matches) ? 0.7 : 0.18;
+	};
+	const onTheme = () => (lastScroll = -1); // fuerza a repintar las estrellas
+	darkMq.addEventListener('change', onTheme);
 
 	// ---------- Humo (partículas reutilizadas) ----------
 	const puffs = Array.from({ length: 40 }, () => {
@@ -258,20 +283,39 @@ function setup(
 	}
 
 	// ---------- Ticker: fuego que titila, humo, balanceo y estrellas ----------
+	const setFlame = { o: gsap.quickSetter(flame, 'opacity'), sy: gsap.quickSetter(flame, 'scaleY'), sx: gsap.quickSetter(flame, 'scaleX') };
+	const setSway = { x: gsap.quickSetter(sway, 'x', 'px'), r: gsap.quickSetter(sway, 'rotation', 'deg') };
+	let flameOff = true;
+	let swayIdle = true;
 	let lastEmit = 0;
-	let lastScroll = -1;
 	const tick = (time: number, delta: number) => {
 		const dt = Math.min(delta / 1000, 0.05);
 		const sy = window.scrollY;
 
 		// fuego: vivo mientras el motor está encendido (no depende del scroll)
 		const power = landed ? 0 : thrust.v;
-		const flicker = 0.82 + 0.12 * Math.sin(time * 31) + 0.08 * Math.sin(time * 53 + 1.3) + 0.05 * Math.random();
-		gsap.set(flame, { opacity: power > 0.02 ? 1 : 0, scaleY: power * flicker, scaleX: 0.9 + 0.1 * Math.sin(time * 23) });
+		if (power > 0.02) {
+			const flicker = 0.82 + 0.12 * Math.sin(time * 31) + 0.08 * Math.sin(time * 53 + 1.3) + 0.05 * Math.random();
+			setFlame.o(1);
+			setFlame.sy(power * flicker);
+			setFlame.sx(0.9 + 0.1 * Math.sin(time * 23));
+			flameOff = false;
+		} else if (!flameOff) {
+			setFlame.o(0);
+			flameOff = true;
+		}
 
 		// balanceo durante el vuelo (sube y baja según la fase)
-		const flight = flightAmount();
-		if (!landed) gsap.set(sway, { x: Math.sin(sy / 190 + time * 0.8) * 7 * flight, rotation: Math.sin(sy / 260 + time * 0.6) * 3.5 * flight });
+		const flight = landed ? 0 : flightAmount();
+		if (flight > 0) {
+			setSway.x(Math.sin(sy / 190 + time * 0.8) * 7 * flight);
+			setSway.r(Math.sin(sy / 260 + time * 0.6) * 3.5 * flight);
+			swayIdle = false;
+		} else if (!swayIdle && !landed) {
+			setSway.x(0);
+			setSway.r(0);
+			swayIdle = true;
+		}
 
 		// humo
 		if (power > 0.25 && time - lastEmit > 0.05) {
@@ -320,8 +364,21 @@ function setup(
 	gsap.ticker.add(tick);
 	ScrollTrigger.refresh();
 
+	// iOS: la barra del navegador cambia el alto visible sin que ScrollTrigger refresque (ignoreMobileResize)
+	let vvTimer = 0;
+	const onViewport = () => {
+		clearTimeout(vvTimer);
+		vvTimer = window.setTimeout(() => ScrollTrigger.refresh(), 250);
+	};
+	window.visualViewport?.addEventListener('resize', onViewport);
+
 	return () => {
 		gsap.ticker.remove(tick);
+		darkMq.removeEventListener('change', onTheme);
+		window.visualViewport?.removeEventListener('resize', onViewport);
+		clearTimeout(vvTimer);
+		gsap.killTweensOf([sway, flame]);
+		gsap.set([sway, flame], { clearProps: 'all' });
 		document.documentElement.classList.remove('rocket-on');
 		starsSvg.replaceChildren();
 		smokeSvg.replaceChildren();

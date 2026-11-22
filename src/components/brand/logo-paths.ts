@@ -1,6 +1,6 @@
 /**
  * Trazos del logo {JR_} labs (idénticos a src/assets/brand/logo-light.svg).
- * Fuente única para Logo.astro (logo estático) y RocketArt.astro (logo que se arma en cohete).
+ * Fuente única para Logo.astro y para rocket-geometry.ts (logo que se transforma en cohete).
  */
 export const LOGO = {
 	viewBox: '16 16 316 74',

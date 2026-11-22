@@ -42,5 +42,3 @@ export const DETAILS = {
 	flameInner: 'M188 330Q200 352 200 374Q200 352 212 330Z',
 } as const;
 
-/** Punto de apoyo del cohete (base de la tobera) y centro, en el viewBox */
-export const ROCKET_BASE = { x: 200, y: 330 };
