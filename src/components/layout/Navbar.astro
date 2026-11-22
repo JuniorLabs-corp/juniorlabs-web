@@ -5,6 +5,11 @@ import { site } from '../../content/site';
 
 const { brand, links, cta } = site.nav;
 const panelId = 'menu-principal';
+
+// Página actual: solo enlaces a páginas (no a anclas). '/proyectos' y '/proyectos/' cuentan igual.
+const normalize = (path: string) => (path.length > 1 ? path.replace(/\/$/, '') : path);
+const current = normalize(Astro.url.pathname);
+const isCurrent = (href: string) => !href.includes('#') && normalize(href) === current;
 ---
 
 <div data-navbar>
@@ -20,7 +25,7 @@ const panelId = 'menu-principal';
 				{
 					links.map((link) => (
 						<li>
-							<a href={link.href} class="nav-link">
+							<a href={link.href} class="nav-link" aria-current={isCurrent(link.href) ? 'page' : undefined}>
 								{link.label}
 							</a>
 						</li>
@@ -54,7 +59,7 @@ const panelId = 'menu-principal';
 					{
 						links.map((link) => (
 							<li>
-								<a href={link.href} class="panel-link">
+								<a href={link.href} class="panel-link" aria-current={isCurrent(link.href) ? 'page' : undefined}>
 									{link.label}
 								</a>
 							</li>
@@ -137,6 +142,13 @@ const panelId = 'menu-principal';
 
 		.nav-link:hover {
 			color: var(--text);
+		}
+
+		/* Página actual: más contraste y peso, no solo color */
+		.nav-link[aria-current='page'],
+		.panel-link[aria-current='page'] {
+			color: var(--text);
+			font-weight: 600;
 		}
 
 		.nav-cta {

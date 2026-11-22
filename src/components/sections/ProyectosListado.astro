@@ -3,15 +3,21 @@
  * Fichas de proyectos (site.proyectos.items). Lo usan la sección de la home y la página /proyectos.
  * Hoy hay una sola ficha pendiente; para publicar un producto se agrega un elemento en site.ts.
  */
-import { site } from '../../content/site';
+import { site, type Proyecto } from '../../content/site';
 
-const { items } = site.proyectos;
+const items: Proyecto[] = site.proyectos.items;
 const { mailto } = site.contact;
 
-// Parte la descripción para enlazar la palabra de contacto al correo
-const withContactLink = (text: string, word?: string) => {
-	if (!word || !text.includes(word)) return { before: text, word: '', after: '' };
+// Parte la descripción para enlazar la palabra de contacto al correo.
+// Si la palabra no aparece (p. ej. Marketing cambió el copy), el build falla en vez de perder el enlace en silencio.
+const withContactLink = ({ name, description, contactWord }: Proyecto) => {
+	if (!contactWord) return { before: description, word: '', after: '' };
+	const text = description.normalize('NFC');
+	const word = contactWord.normalize('NFC');
 	const at = text.lastIndexOf(word);
+	if (at === -1) {
+		throw new Error(`site.proyectos: «${word}» no aparece en la descripción de «${name}»; no se puede enlazar al correo.`);
+	}
 	return { before: text.slice(0, at), word, after: text.slice(at + word.length) };
 };
 ---
@@ -20,15 +26,16 @@ const withContactLink = (text: string, word?: string) => {
 <ul role="list" class="grid gap-4 sm:gap-6">
 	{
 		items.map((item) => {
-			const desc = withContactLink(item.description, item.contactWord);
+			const desc = withContactLink(item);
 			return (
 				<li>
-					<article data-proyecto class="proyecto">
-						<p class="status">
+					{/* El estado va después del nombre en el DOM (quien navega por títulos lo oye) y se muestra arriba con order */}
+					<article data-proyecto class="proyecto flex flex-col">
+						<h3 class="mt-4 text-lg font-semibold sm:text-xl">{item.name}</h3>
+						<p class="status order-first self-start">
 							<span class="status-dot" aria-hidden="true" />
 							{item.status}
 						</p>
-						<h3 class="mt-4 text-lg font-semibold sm:text-xl">{item.name}</h3>
 						<p class="mt-2 max-w-[52ch] leading-relaxed text-pretty text-text-secondary">
 							{desc.before}
 							{desc.word && (
