@@ -136,11 +136,7 @@
 
 @layer base {
   html {
-    /*
-      Fondo de la página en <html> (no en <body>): Safari en iOS 26 toma de aquí el color de su barra
-      superior (ya no usa theme-color). Con el fondo solo en <html>, se extiende a todo el lienzo y la
-      capa del cohete (z-index -1) queda entre el fondo y el contenido; un fondo en <body> la taparía.
-    */
+    /* Fondo también en <html> y en <body>: Safari en iOS 26 toma de ahí el color de su barra superior */
     background-color: var(--background);
     scroll-behavior: smooth;
     /* deja libre el header fijo (4.5rem) al saltar a anclas o mover el foco */
@@ -160,6 +156,12 @@
   }
 
   body {
+    background-color: var(--background);
+    /*
+      Contexto de apilamiento propio: la capa del cohete (fixed, z-index -1) se pinta encima del fondo
+      de <body> y debajo del contenido. Sin esto, el fondo de <body> la taparía.
+    */
+    isolation: isolate;
     color: var(--text);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
