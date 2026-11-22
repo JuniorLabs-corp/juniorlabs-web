@@ -2,14 +2,11 @@
 import Container from './Container.astro';
 import Logo from '../brand/Logo.astro';
 import { site } from '../../content/site';
+import { isCurrentPage } from '../../lib/nav';
 
 const { brand, links, cta } = site.nav;
 const panelId = 'menu-principal';
-
-// Página actual: solo enlaces a páginas (no a anclas). '/proyectos' y '/proyectos/' cuentan igual.
-const normalize = (path: string) => (path.length > 1 ? path.replace(/\/$/, '') : path);
-const current = normalize(Astro.url.pathname);
-const isCurrent = (href: string) => !href.includes('#') && normalize(href) === current;
+const isCurrent = (href: string) => isCurrentPage(href, Astro.url.pathname);
 ---
 
 <div data-navbar>
