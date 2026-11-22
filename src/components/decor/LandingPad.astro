@@ -16,7 +16,6 @@ import RocketArt from './RocketArt.astro';
 		<RocketArt variant="rocket" class="h-auto w-full" />
 	</div>
 	<span class="landing-shadow"></span>
-	<span class="landing-ground"></span>
 </div>
 
 <style>
@@ -53,16 +52,8 @@ import RocketArt from './RocketArt.astro';
 		background: color-mix(in srgb, var(--text-secondary) 30%, transparent);
 	}
 
-	.landing-ground {
-		position: absolute;
-		left: 0;
-		right: 0;
-		bottom: 0.25rem;
-		height: 1px;
-		background: var(--border);
-	}
 
-	@supports (animation-timeline: view()) {
+	@supports (animation-timeline: view()) and (animation-range: 0 1px) {
 		@media (prefers-reduced-motion: no-preference) {
 			.landing-rocket,
 			.landing-rocket :global(.flame),

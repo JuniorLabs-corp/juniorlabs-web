@@ -1,8 +1,8 @@
 ---
 /**
  * Logo {JR_} → cohete. Solo CSS scroll-driven animations (0 KB de JS):
- *   - Hero: con los primeros 12rem de scroll el logo se arma en cohete, toma impulso y despega.
- *   - El vuelo por las secciones vive en RocketFlight.astro (≥ 80rem).
+ *   - Hero: con los primeros 6–12rem de scroll (según el ancho) el logo se arma en cohete, toma impulso y despega.
+ *   - El vuelo por las secciones vive en RocketFlight.astro (≥ 84rem).
  *   - El aterrizaje vive en LandingPad.astro (footer).
  *
  * Nada se mueve sin scroll: si el usuario se detiene, todo se detiene (WCAG 2.2.2).
@@ -18,16 +18,27 @@ import RocketArt from './RocketArt.astro';
 
 <style>
 	.logo-cohete {
+		/*
+			Recorrido de scroll de toda la secuencia. En una columna (< 64rem) el recuadro está arriba
+			y se mete bajo el header fijo pronto, así que la secuencia es más corta para verse completa.
+		*/
+		--rocket-range: 6rem;
 		display: grid;
 		place-items: center;
 		width: 100%;
 		height: 100%;
 	}
 
-	@supports (animation-timeline: scroll()) {
+	@media (width >= 64rem) {
+		.logo-cohete {
+			--rocket-range: 12rem;
+		}
+	}
+
+	@supports (animation-timeline: scroll()) and (animation-range: 0 1px) {
 		@media (prefers-reduced-motion: no-preference) {
 			/*
-				Etapas sobre los primeros 12rem de scroll de la página:
+				Etapas sobre los primeros --rocket-range de scroll de la página (6rem en una columna, 12rem en dos):
 				  0–50%    ensamble (ease-in-out fuerte)
 				  50–58%   anticipación: se agacha y se inclina un poco
 				  58–62%   se recupera
@@ -43,7 +54,7 @@ import RocketArt from './RocketArt.astro';
 				animation-fill-mode: both;
 				animation-timing-function: linear;
 				animation-timeline: scroll(root);
-				animation-range: 0 12rem;
+				animation-range: 0 var(--rocket-range);
 			}
 
 			.logo-cohete :global(.rocket-art .piece) {
@@ -75,7 +86,7 @@ import RocketArt from './RocketArt.astro';
 				animation-timing-function: linear;
 				animation-fill-mode: both;
 				animation-timeline: scroll(root);
-				animation-range: 0 12rem;
+				animation-range: 0 var(--rocket-range);
 			}
 
 			.logo-cohete :global(.rocket-art .puff) {
@@ -84,7 +95,7 @@ import RocketArt from './RocketArt.astro';
 				animation-timing-function: linear;
 				animation-fill-mode: both;
 				animation-timeline: scroll(root);
-				animation-range: var(--start) 13rem;
+				animation-range: calc(var(--rocket-range) * var(--start)) calc(var(--rocket-range) * 1.08);
 			}
 		}
 	}

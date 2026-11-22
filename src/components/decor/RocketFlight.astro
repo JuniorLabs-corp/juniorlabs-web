@@ -1,9 +1,10 @@
 ---
 /**
- * Vuelo del cohete por las secciones (solo ≥ 80rem). Va fuera del recuadro del hero porque ese
+ * Vuelo del cohete por las secciones (solo ≥ 84rem). Va fuera del recuadro del hero porque ese
  * recuadro usa `contain: paint`, que volvería "fijo al recuadro" a un elemento position: fixed.
  *
- * El contenido mide 72rem, así que desde 80rem queda un carril sin texto en el margen derecho.
+ * El contenido mide 72rem; desde 84rem queda un carril sin texto en el margen derecho con holgura
+ * (contando la barra de scroll y el balanceo).
  * Lee el timeline --main (view-timeline de #contenido en global.css): entra después del despegue
  * del hero, se balancea mientras se lee y baja hacia el footer, donde aterriza (LandingPad.astro).
  * Sin soporte, con reduced motion o en pantallas más angostas no se muestra. Decorativo.
@@ -22,11 +23,11 @@ import RocketArt from './RocketArt.astro';
 		display: none;
 	}
 
-	@supports (animation-timeline: scroll()) {
-		@media (prefers-reduced-motion: no-preference) and (width >= 80rem) {
+	@supports (animation-timeline: scroll()) and (animation-range: 0 1px) {
+		@media (prefers-reduced-motion: no-preference) and (width >= 84rem) {
 			/*
-				Vuelo en el margen derecho: el contenido mide 72rem, así que desde 80rem queda un carril
-				libre de texto. Lee el timeline --main (view-timeline de #contenido en global.css):
+				Vuelo en el margen derecho: el contenido mide 72rem, así que desde 84rem queda un carril
+				libre de texto (con holgura para la barra de scroll y el balanceo). Lee el timeline --main (view-timeline de #contenido en global.css):
 				  entra después del despegue del hero, se balancea mientras se lee y baja hacia el footer.
 			*/
 			.rocket-flight {
@@ -43,9 +44,13 @@ import RocketArt from './RocketArt.astro';
 				animation-timing-function: linear, linear;
 				animation-fill-mode: both, forwards;
 				animation-timeline: --main, --main;
+				/*
+					Ojo: los view-timelines restan scroll-padding-top (5.5rem en global.css); si cambia, estos
+					rangos se recorren. Sale en el primer 18% de exit para irse antes de que se vea el aterrizaje.
+				*/
 				animation-range:
 					contain 12rem contain 22rem,
-					exit 0% exit 40%;
+					exit 0% exit 18%;
 			}
 
 			.flight-sway {
@@ -65,7 +70,7 @@ import RocketArt from './RocketArt.astro';
 				animation-timing-function: linear;
 				animation-fill-mode: both;
 				animation-timeline: --main;
-				animation-range: contain 12rem exit 40%;
+				animation-range: contain 12rem exit 18%;
 			}
 		}
 	}

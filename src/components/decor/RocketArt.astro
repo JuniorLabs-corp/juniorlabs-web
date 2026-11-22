@@ -13,6 +13,7 @@
  * Decorativo: aria-hidden, sin foco. Solo se animan transform y opacity.
  */
 import { LOGO } from '../brand/logo-paths';
+import { nextRocketId } from './rocket-ids';
 
 interface Props {
 	variant: 'hero' | 'rocket';
@@ -21,8 +22,8 @@ interface Props {
 
 const { variant, class: className } = Astro.props;
 
-// ids únicos por instancia para los recortes de la R (puede haber varias en la página)
-const uid = `rk-${Math.random().toString(36).slice(2, 8)}`;
+// ids únicos y deterministas por instancia para los recortes de la R (puede haber varias en la página)
+const uid = nextRocketId();
 const clip = { bowl: `${uid}-bowl`, leg: `${uid}-leg`, foot: `${uid}-foot` };
 
 // El hero conserva el encuadre del logo (con aire arriba y abajo para el cohete); el cohete armado se recorta a su silueta
@@ -30,11 +31,12 @@ const viewBox = variant === 'hero' ? '16 -36 316 164' : '140 -36 66 186';
 
 // Humo al pie del cohete: desplazamiento y escala distintos por bocanada
 const puffs = [
-	{ cx: 174, dx: -14, dy: -5, s: 1.5, start: 7 },
-	{ cx: 168, dx: -26, dy: -3, s: 1.9, start: 7.4 },
-	{ cx: 180, dx: 15, dy: -6, s: 1.6, start: 7.2 },
-	{ cx: 184, dx: 27, dy: -2, s: 2.1, start: 7.7 },
-	{ cx: 172, dx: -6, dy: -9, s: 1.2, start: 8 },
+	// start: fracción del rango del despegue en la que sale cada bocanada
+	{ cx: 174, dx: -14, dy: -5, s: 1.5, start: 0.58 },
+	{ cx: 168, dx: -26, dy: -3, s: 1.9, start: 0.62 },
+	{ cx: 180, dx: 15, dy: -6, s: 1.6, start: 0.6 },
+	{ cx: 184, dx: 27, dy: -2, s: 2.1, start: 0.64 },
+	{ cx: 172, dx: -6, dy: -9, s: 1.2, start: 0.67 },
 ];
 ---
 
@@ -61,7 +63,7 @@ const puffs = [
 						cx={p.cx}
 						cy="112"
 						r="6"
-						style={`--dx:${p.dx}px;--dy:${p.dy}px;--s:${p.s};--start:${p.start}rem;transform-origin:${p.cx}px 112px`}
+						style={`--dx:${p.dx}px;--dy:${p.dy}px;--s:${p.s};--start:${p.start};transform-origin:${p.cx}px 112px`}
 					/>
 				))}
 			</g>
