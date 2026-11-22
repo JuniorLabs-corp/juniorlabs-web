@@ -1,0 +1,75 @@
+---
+/**
+ * Cohete ya armado (forma final de la animación). Se usa posado en la plataforma del footer
+ * cuando no hay animación: sin JS, con prefers-reduced-motion o antes de que cargue GSAP.
+ * Decorativo (aria-hidden). Colores por tokens.
+ */
+import { ROCKET, DETAILS } from './rocket-geometry';
+
+interface Props {
+	class?: string;
+	/** Con patas desplegadas (posado) */
+	landed?: boolean;
+}
+
+const { class: className, landed = true } = Astro.props;
+---
+
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	viewBox="90 10 220 345"
+	class:list={['rocket-static', className]}
+	aria-hidden="true"
+	focusable="false"
+>
+	<g stroke-linecap="round" stroke-linejoin="round">
+		{landed && <path class="rs-legs" d={`${DETAILS.legLeft}${DETAILS.legRight}`} />}
+		<path class="rs-fin" d={ROCKET.finLeft} />
+		<path class="rs-fin" d={ROCKET.finRight} />
+		<path class="rs-nozzle" d={ROCKET.nozzle} />
+		<path class="rs-body" d={ROCKET.body} />
+		<path class="rs-stripe" d={DETAILS.stripe} />
+		<path class="rs-nose" d={ROCKET.nose} />
+		<circle class="rs-glass" cx={DETAILS.glass.cx} cy={DETAILS.glass.cy} r={DETAILS.glass.r} />
+		<path class="rs-window" d={ROCKET.window} fill-rule="evenodd" />
+		<path class="rs-glare" d={DETAILS.glare} />
+	</g>
+</svg>
+
+<style>
+	.rocket-static .rs-body {
+		fill: var(--illus-rocket-body);
+		stroke: var(--logo-letters);
+		stroke-width: 6;
+	}
+
+	.rocket-static .rs-nose,
+	.rocket-static .rs-fin,
+	.rocket-static .rs-window {
+		fill: var(--logo-letters);
+		stroke: var(--logo-letters);
+		stroke-width: 4;
+	}
+
+	.rocket-static .rs-nozzle,
+	.rocket-static .rs-stripe {
+		fill: var(--accent);
+	}
+
+	.rocket-static .rs-glass {
+		fill: var(--illus-window-glass);
+	}
+
+	.rocket-static .rs-glare {
+		fill: none;
+		stroke: white;
+		stroke-width: 4;
+		opacity: 0.7;
+	}
+
+	.rocket-static .rs-legs {
+		fill: none;
+		stroke: var(--logo-letters);
+		stroke-width: 6;
+	}
+</style>

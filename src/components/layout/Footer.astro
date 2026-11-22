@@ -1,6 +1,7 @@
 ---
 import Container from './Container.astro';
 import Logo from '../brand/Logo.astro';
+import LandingPad from '../decor/LandingPad.astro';
 import { site } from '../../content/site';
 import { isCurrentPage } from '../../lib/nav';
 
@@ -37,7 +38,12 @@ const isCurrent = (href: string) => isCurrentPage(href, Astro.url.pathname);
 		</nav>
 	</div>
 
-	<p class="mt-12 border-t border-border pt-6 text-sm text-text-secondary">{copyright}</p>
+	<!-- Zona reservada donde aterriza el cohete del hero (decorativa) -->
+	<div class="mt-6 flex justify-end">
+		<LandingPad />
+	</div>
+
+	<p class="border-t border-border pt-6 text-sm text-text-secondary">{copyright}</p>
 </Container>
 
 <style>

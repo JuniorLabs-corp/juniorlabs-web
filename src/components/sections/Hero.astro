@@ -1,89 +1,109 @@
 ---
 import Container from '../layout/Container.astro';
 import Logo from '../brand/Logo.astro';
+import RocketScene from '../decor/RocketScene.astro';
 import { site } from '../../content/site';
 
 const { title, subtitle, primaryCta, secondaryCta } = site.hero;
 ---
 
-<section aria-labelledby="hero-title" class="hero">
-	<Container class="grid items-center gap-8 sm:gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16">
-		<!--
-			Espacio reservado para la marca {JR_} (solo el cursor parpadea);
-			feat/logo-cohete lo reemplaza por la animación del cohete.
-		-->
-		<div data-hero-logo class="hero-logo lg:order-last">
-			<Logo class="h-auto w-full" />
-		</div>
-
-		<div class="min-w-0">
-			<h1 id="hero-title" class="hero-title font-mono font-bold text-balance">
-				{title}
-			</h1>
-			<p class="mt-6 max-w-[34rem] text-lg leading-relaxed text-pretty text-text-secondary sm:text-xl">
-				{subtitle}
-			</p>
-			<div class="mt-8 flex flex-wrap gap-3 sm:mt-10">
-				<a href={primaryCta.href} class="hero-cta bg-accent text-on-accent">
-					{primaryCta.label}
-				</a>
-				<a href={secondaryCta.href} class="hero-cta border border-border text-text hover:border-text-secondary hover:bg-surface">
-					{secondaryCta.label}
-				</a>
+<!--
+	Hero como escena: el logo {JR_} grande al centro y el texto debajo.
+	Con JS y sin reduced motion la escena es más alta y su contenido queda fijo (sticky) mientras el
+	logo se transforma en cohete (RocketScene, GSAP). Sin JS o con reduced motion es un hero normal.
+-->
+<section aria-labelledby="hero-title" class="hero-scene" data-hero-scene>
+	<div class="hero-sticky">
+		<Container class="h-full">
+			<!-- div propio: los estilos con alcance de este componente no llegan al div de Container -->
+			<div class="hero-inner">
+			<div class="hero-home" data-rocket-home>
+				<Logo class="hero-logo" blink={false} />
 			</div>
-		</div>
-	</Container>
+
+			<div class="hero-copy" data-hero-copy>
+				<h1 id="hero-title" class="hero-title font-mono font-bold text-balance">
+					{title}
+				</h1>
+				<p class="mx-auto mt-5 max-w-[34rem] text-lg leading-relaxed text-pretty text-text-secondary sm:text-xl">
+					{subtitle}
+				</p>
+				<div class="mt-7 flex flex-wrap justify-center gap-3" data-hero-ctas>
+					<a href={primaryCta.href} class="hero-cta bg-accent text-on-accent">
+						{primaryCta.label}
+					</a>
+					<a
+						href={secondaryCta.href}
+						class="hero-cta border border-border text-text hover:border-text-secondary hover:bg-surface"
+					>
+						{secondaryCta.label}
+					</a>
+				</div>
+			</div>
+			</div>
+		</Container>
+	</div>
+	<RocketScene />
 </section>
 
 <style>
-	/* En la capa components: las utilidades de Tailwind pueden sobrescribir estos estilos */
 	@layer components {
-		.hero {
-			/* El hero ocupa casi toda la primera pantalla sin empujar el contenido fuera en móviles bajos */
-			padding-block: clamp(3rem, 8vw, 6rem);
-			min-height: min(52rem, calc(100svh - 4.5rem));
+		.hero-scene {
+			position: relative;
+		}
+
+		.hero-sticky {
 			display: grid;
+			min-height: calc(100svh - 4.5rem);
+		}
+
+		/* Escena: más recorrido de scroll y contenido fijo mientras el logo se transforma */
+		@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+			.hero-scene {
+				height: calc(100svh - 4.5rem + 90svh);
+			}
+
+			.hero-sticky {
+				position: sticky;
+				top: 4.5rem;
+				height: calc(100svh - 4.5rem);
+				min-height: 0;
+			}
+		}
+
+		.hero-inner {
+			height: 100%;
+			display: grid;
+			grid-template-rows: minmax(0, 1fr) auto;
 			align-items: center;
+			justify-items: center;
+			gap: clamp(1rem, 3vh, 2rem);
+			padding-block: clamp(1.5rem, 5vh, 3.5rem);
+			text-align: center;
+		}
+
+		/* Espacio del logo (y del cohete al armarse): crece con la pantalla */
+		.hero-home {
+			width: min(86vw, 36rem, 62vh);
+		}
+
+		/* Con la escena activa, el logo que se ve es el de RocketScene, superpuesto exacto */
+		:global(html.rocket-on) .hero-home :global(.hero-logo) {
+			visibility: hidden;
+		}
+
+		.hero-copy {
+			position: relative;
+			z-index: 1;
 		}
 
 		.hero-title {
-			/* Tamaño fluido: 2.25rem en 375px → 4rem en escritorio */
-			font-size: clamp(2.25rem, 1.4rem + 3.6vw, 4rem);
-			line-height: 1.05;
+			font-size: clamp(2rem, 1.3rem + 3vw, 3.5rem);
+			line-height: 1.06;
 			letter-spacing: -0.035em;
-			max-width: 19ch;
+			max-width: 20ch;
+			margin-inline: auto;
 			overflow-wrap: break-word;
-		}
-
-		.hero-logo {
-			/*
-				Área de tamaño fijo para la marca. contain + overflow evitan que el contenido
-				(p. ej. la animación de feat/logo-cohete) la agrande y mueva el layout.
-			*/
-			display: grid;
-			place-items: center;
-			aspect-ratio: 5 / 2;
-			width: min(100%, 24rem);
-			min-height: 0;
-			padding: 1rem 1.75rem;
-			border-radius: 1.5rem;
-			background: var(--surface);
-			border: 1px solid var(--border);
-			overflow: hidden;
-			contain: layout paint;
-		}
-
-		.hero-logo > * {
-			max-height: 100%;
-		}
-
-		@media (width >= 64rem) {
-			.hero-logo {
-				width: 100%;
-				aspect-ratio: 4 / 3;
-				padding: 3rem;
-				border-radius: 2.25rem;
-			}
 		}
 
 		.hero-cta {
