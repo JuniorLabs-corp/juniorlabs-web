@@ -1,15 +1,75 @@
 ---
 import Container from './Container.astro';
+import Logo from '../brand/Logo.astro';
 import { site } from '../../content/site';
 
 const { tagline, copyright } = site.footer;
 const { email, mailto } = site.contact;
+const { brand, links } = site.nav;
 ---
 
-<Container class="flex flex-col gap-3 py-12 text-sm text-text-secondary sm:flex-row sm:items-end sm:justify-between">
-	<div class="flex flex-col gap-2">
-		<p class="max-w-[40ch] text-text">{tagline}</p>
-		<a href={mailto} class="underline underline-offset-4 hover:text-text">{email}</a>
+<Container class="py-12 sm:py-16">
+	<div class="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+		<div class="flex flex-col items-start gap-4">
+			<a href="/" class="rounded-md">
+				<Logo label={brand} class="h-7 w-auto" />
+			</a>
+			<p class="max-w-[34ch] leading-relaxed text-pretty text-text">{tagline}</p>
+			<!-- overflow-wrap en el correo: con texto grande no cabe en una línea y no tiene espacios -->
+			<a href={mailto} class="footer-mail">{email}</a>
+		</div>
+
+		<nav aria-label="Pie de página" class="lg:justify-self-end">
+			<!-- role="list": Safari/VoiceOver quita la semántica de lista cuando list-style es none -->
+			<ul role="list" class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-8">
+				{
+					links.map((link) => (
+						<li>
+							<a href={link.href} class="footer-link">
+								{link.label}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</nav>
 	</div>
-	<p>{copyright}</p>
+
+	<p class="mt-12 border-t border-border pt-6 text-sm text-text-secondary">{copyright}</p>
 </Container>
+
+<style>
+	@layer components {
+		.footer-mail {
+			color: var(--text);
+			font-weight: 600;
+			text-decoration: underline;
+			text-decoration-color: var(--accent);
+			text-underline-offset: 0.25em;
+			text-decoration-thickness: 1px;
+			overflow-wrap: anywhere;
+		}
+
+		.footer-mail:hover {
+			text-decoration-thickness: 2px;
+		}
+
+		.footer-link {
+			display: inline-flex;
+			min-height: 2.75rem;
+			align-items: center;
+			color: var(--text-secondary);
+			transition: color 150ms ease;
+		}
+
+		.footer-link:hover {
+			color: var(--text);
+		}
+
+		@media (width >= 40rem) {
+			.footer-link {
+				min-height: auto;
+			}
+		}
+	}
+</style>
