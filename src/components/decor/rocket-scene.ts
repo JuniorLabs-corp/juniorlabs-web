@@ -4,8 +4,10 @@
  * Etapas:
  *   hero     (ScrollTrigger sobre .hero-scene, scrub): morph logo → cohete, anticipación, despegue al carril.
  *   vuelo    (ticker): balanceo suave mientras se leen las secciones; fuego y humo vivos.
- *   aterrizaje (ScrollTrigger sobre la plataforma, scrub): baja frenando, despliega patas;
+ *   aterrizaje (ticker): baja frenando hacia la posición VIVA de la plataforma y despliega patas;
  *            al tocar (fin de página) se aplasta, rebota y suelta una bocanada de humo.
+ *            Seguir la plataforma en vivo lo mantiene pegado a ella aunque la barra del navegador
+ *            móvil cambie el alto visible o el scroll sea muy rápido.
  *
  * Solo se mueven transform/opacity del contenedor y la forma (d) de las piezas del SVG.
  * prefers-reduced-motion: gsap.matchMedia revierte todo y vuelve al estado estático.
@@ -77,7 +79,8 @@ function setup(
 
 	// ---------- Posiciones (se recalculan en cada refresh de ScrollTrigger) ----------
 	const vw = () => window.innerWidth;
-	const vh = () => window.innerHeight;
+	// Alto estable: en móvil no cambia cuando la barra del navegador aparece o se oculta (innerHeight sí)
+	const vh = () => document.documentElement.clientHeight;
 
 	const sticky = home.closest<HTMLElement>('.hero-sticky') ?? heroScene;
 	/**
@@ -107,26 +110,28 @@ function setup(
 		const x = vw() >= 1024 ? vw() * 0.88 : vw() * 0.84;
 		return { x: x - 200, y: vh() * 0.46 - 200, scale: s };
 	};
-	/** Posado en la plataforma del footer (posición en pantalla al final de la página) */
-	const padPose = () => {
-		if (!pad) return lanePose();
-		const r = pad.getBoundingClientRect();
-		const maxScroll = document.documentElement.scrollHeight - vh();
-		const top = r.top + window.scrollY - maxScroll; // posición en pantalla con el scroll al máximo
+	/** Posado en la plataforma del footer, en su posición actual en pantalla (se mueve con el scroll) */
+	const padPose = (r: DOMRect) => {
 		const s = 56 / 220; // mismo tamaño que el cohete estático del pad (3.5rem sobre 220 unidades)
-		const ground = top + r.height - 4;
-		return { x: r.left + r.width / 2 - 200, y: ground - FEET_Y * s - 200, scale: s };
+		return { x: r.left + r.width / 2 - 200, y: r.bottom - 4 - FEET_Y * s - 200, scale: s };
 	};
+	/** Scroll en el que la plataforma asoma por abajo (inicio del aterrizaje) */
+	const landStartAt = (r: DOMRect) => r.top + window.scrollY - vh();
 
 	// ---------- Estado inicial: el cohete se superpone exacto al logo estático ----------
 	gsap.set(carrier, { ...homePose(), transformOrigin: '200px 200px' });
 	gsap.set(land, { transformOrigin: '200px 200px' });
-	gsap.set(legs, { scaleY: 0, svgOrigin: '200 290' });
-	gsap.set(flame, { svgOrigin: '200 330', scaleY: 0 });
+	// origen primero y escala después: con escala 0 GSAP no puede calcular el origen y las patas se desplazan
+	gsap.set(legs, { svgOrigin: '200 290' });
+	gsap.set(legs, { scaleY: 0.001 });
+	gsap.set(flame, { svgOrigin: '200 330' });
+	gsap.set(flame, { scaleY: 0.001 });
 	document.documentElement.classList.add('rocket-on');
 
-	const thrust = { v: 0 }; // 0–1: potencia del motor (fuego y humo)
+	// 0–1: potencia del motor que da el hero (solo la anima el hero: al volver arriba queda en 0)
+	const thrust = { v: 0 };
 	let landed = false;
+	let landP = 0; // progreso del aterrizaje, suavizado (0 en vuelo, 1 posado)
 
 	// ---------- Hero: transformación, anticipación y despegue ----------
 	const hero = gsap.timeline({
@@ -178,49 +183,65 @@ function setup(
 		.to(carrier, { x: () => lanePose().x, scale: () => lanePose().scale, duration: 2.2, ease: 'power2.inOut' }, 'liftoff+=0.6')
 		.to(carrier, { y: () => lanePose().y, rotation: 0, duration: 1.4, ease: 'power2.out' }, 'liftoff+=1.6');
 
-	// ---------- Aterrizaje ----------
-	let landing: gsap.core.Timeline | undefined;
-	if (pad) {
-		landing = gsap.timeline({
-			scrollTrigger: {
-				trigger: pad,
-				start: 'top bottom',
-				end: 'max',
-				scrub: 0.6,
-				invalidateOnRefresh: true,
-			},
-			// progreso de la animación (va 0.6 s detrás del scroll): toca cuando de verdad llega al suelo
-			onUpdate: () => {
-				const pr = landing!.progress();
-				if (pr > 0.985 && !landed) touchdown();
-				else if (pr < 0.9 && landed) liftAgain();
-			},
-		});
-		/*
-			El hero controla [data-carrier] (logo → carril). El aterrizaje mueve [data-land], que va dentro,
-			con el desplazamiento relativo: así no compiten por el mismo transform. Compuesto con el carril
-			(x_l, y_l, s_l), queda exacto en la plataforma (x_p, y_p, s_p).
-		*/
-		const rel = () => {
-			const l = lanePose();
-			const pp = padPose();
-			return { x: (pp.x - l.x) / l.scale, y: (pp.y - l.y) / l.scale, scale: pp.scale / l.scale };
-		};
-		landing
-			.fromTo(land, { x: 0, scale: 1 }, { x: () => rel().x, scale: () => rel().scale, duration: 1, ease: 'power2.inOut', immediateRender: false }, 0)
-			.fromTo(land, { y: 0 }, { y: () => rel().y, duration: 1, ease: 'power3.out', immediateRender: false }, 0)
-			.fromTo(legs, { scaleY: 0 }, { scaleY: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, 0.55)
-			.fromTo(thrust, { v: 1 }, { v: 0.3, duration: 1, ease: 'power1.out', immediateRender: false }, 0);
-	}
+	// ---------- Aterrizaje (lo mueve el ticker; ver tick) ----------
+	/*
+		El hero controla [data-carrier] (logo → carril). El aterrizaje mueve [data-land], que va dentro,
+		con el desplazamiento relativo desde la pose actual del contenedor: así no compiten por el mismo
+		transform y, compuesto, queda exacto sobre la plataforma.
+	*/
+	const easeMove = gsap.parseEase('power2.inOut');
+	const easeDrop = gsap.parseEase('power3.out');
+	const easeLegs = gsap.parseEase('back.out(2)');
+	const setLand = {
+		x: gsap.quickSetter(land, 'x', 'px'),
+		y: gsap.quickSetter(land, 'y', 'px'),
+		sx: gsap.quickSetter(land, 'scaleX'),
+		sy: gsap.quickSetter(land, 'scaleY'),
+		legs: gsap.quickSetter(legs, 'scaleY'),
+	};
+	let landIdle = true;
+	const updateLanding = (r: DOMRect, dt: number) => {
+		const start = landStartAt(r);
+		// fin real del scroll con el alto visible de este momento (margen por la barra del navegador)
+		const end = document.documentElement.scrollHeight - window.innerHeight - 8;
+		const target = gsap.utils.clamp(0, 1, (window.scrollY - start) / Math.max(end - start, 1));
+		landP += (target - landP) * (1 - Math.exp(-dt * 9));
+		if (Math.abs(target - landP) < 0.001) landP = target;
 
-	function touchdown() {
+		if (landP > 0) {
+			const cs = gsap.getProperty(carrier, 'scale') as number;
+			const pp = padPose(r);
+			const rx = (pp.x - (gsap.getProperty(carrier, 'x') as number)) / cs;
+			const ry = (pp.y - (gsap.getProperty(carrier, 'y') as number)) / cs;
+			const m = easeMove(landP);
+			setLand.x(rx * m);
+			setLand.y(ry * easeDrop(landP));
+			const ls = 1 + (pp.scale / cs - 1) * m;
+			setLand.sx(ls);
+			setLand.sy(ls);
+			setLand.legs(Math.max(easeLegs(gsap.utils.clamp(0, 1, (landP - 0.55) / 0.35)), 0.001));
+			landIdle = false;
+		} else if (!landIdle) {
+			setLand.x(0);
+			setLand.y(0);
+			setLand.sx(1);
+			setLand.sy(1);
+			setLand.legs(0.001);
+			landIdle = true;
+		}
+
+		if (landP > 0.985 && !landed) touchdown(r);
+		else if (landP < 0.9 && landed) liftAgain();
+	};
+
+	function touchdown(r: DOMRect) {
 		landed = true;
 		gsap
 			.timeline()
 			.to(sway, { scaleY: 0.9, scaleX: 1.08, y: 2, duration: 0.12, ease: 'power2.out', transformOrigin: '50% 86%' })
 			.to(sway, { scaleY: 1, scaleX: 1, y: -10, duration: 0.22, ease: 'power2.out' })
 			.to(sway, { y: 0, duration: 0.5, ease: 'bounce.out' });
-		burst(16);
+		burst(16, r);
 	}
 
 	function liftAgain() {
@@ -273,9 +294,9 @@ function setup(
 		return { x: x + 200 + ox - Math.sin(rot) * dy, y: y + 200 + Math.cos(rot) * dy, s, rot };
 	};
 
-	function burst(n: number) {
-		const { x, s } = nozzleWorld();
-		const ground = (padPose().y + 200 + FEET_Y * s) | 0;
+	function burst(n: number, r: DOMRect) {
+		const { x } = nozzleWorld();
+		const ground = (r.bottom - 4) | 0;
 		for (let i = 0; i < n; i++) {
 			const dir = i % 2 ? 1 : -1;
 			emit(x + dir * Math.random() * 10, ground - 2, dir * (25 + Math.random() * 90), -Math.random() * 14, 3 + Math.random() * 4, 1 + Math.random() * 0.5);
@@ -291,9 +312,11 @@ function setup(
 	const tick = (time: number, delta: number) => {
 		const dt = Math.min(delta / 1000, 0.05);
 		const sy = window.scrollY;
+		const padRect = pad?.getBoundingClientRect();
+		if (padRect) updateLanding(padRect, dt);
 
-		// fuego: vivo mientras el motor está encendido (no depende del scroll)
-		const power = landed ? 0 : thrust.v;
+		// fuego: vivo mientras el motor está encendido; al bajar a la plataforma se va apagando
+		const power = landed ? 0 : thrust.v * (1 - 0.8 * landP);
 		if (power > 0.02) {
 			const flicker = 0.82 + 0.12 * Math.sin(time * 31) + 0.08 * Math.sin(time * 53 + 1.3) + 0.05 * Math.random();
 			setFlame.o(1);
@@ -306,7 +329,7 @@ function setup(
 		}
 
 		// balanceo durante el vuelo (sube y baja según la fase)
-		const flight = landed ? 0 : flightAmount();
+		const flight = landed ? 0 : flightAmount(padRect);
 		if (flight > 0) {
 			setSway.x(Math.sin(sy / 190 + time * 0.8) * 7 * flight);
 			setSway.r(Math.sin(sy / 260 + time * 0.6) * 3.5 * flight);
@@ -352,10 +375,9 @@ function setup(
 	};
 
 	/** 0 en el hero, 1 a mitad de página, 0 al llegar a la plataforma */
-	const flightAmount = () => {
-		const st = hero.scrollTrigger!;
-		const heroEnd = st.end;
-		const landStart = landing?.scrollTrigger?.start ?? document.documentElement.scrollHeight;
+	const flightAmount = (padRect?: DOMRect) => {
+		const heroEnd = hero.scrollTrigger!.end;
+		const landStart = padRect ? landStartAt(padRect) : document.documentElement.scrollHeight;
 		const y = window.scrollY;
 		const ramp = 260;
 		return gsap.utils.clamp(0, 1, Math.min((y - heroEnd + ramp) / ramp, (landStart - y) / ramp));
@@ -364,21 +386,11 @@ function setup(
 	gsap.ticker.add(tick);
 	ScrollTrigger.refresh();
 
-	// iOS: la barra del navegador cambia el alto visible sin que ScrollTrigger refresque (ignoreMobileResize)
-	let vvTimer = 0;
-	const onViewport = () => {
-		clearTimeout(vvTimer);
-		vvTimer = window.setTimeout(() => ScrollTrigger.refresh(), 250);
-	};
-	window.visualViewport?.addEventListener('resize', onViewport);
-
 	return () => {
 		gsap.ticker.remove(tick);
 		darkMq.removeEventListener('change', onTheme);
-		window.visualViewport?.removeEventListener('resize', onViewport);
-		clearTimeout(vvTimer);
 		gsap.killTweensOf([sway, flame]);
-		gsap.set([sway, flame], { clearProps: 'all' });
+		gsap.set([sway, flame, land, legs], { clearProps: 'all' });
 		document.documentElement.classList.remove('rocket-on');
 		starsSvg.replaceChildren();
 		smokeSvg.replaceChildren();
