@@ -1,0 +1,191 @@
+---
+/**
+ * Arte del cohete hecho con las piezas del logo {JR_}:
+ *   } → punta · { → propulsor · cursor _ → cuerpo · J → ala izquierda ·
+ *   pata de la R → ala derecha · panza de la R → ventana. "labs" y el pie del asta se desvanecen.
+ *
+ * Cada pieza guarda su transformación final en --to (coordenadas del viewBox; el origen es el
+ * centro de la pieza). Así, una sola animación (de none a var(--to)) arma el cohete.
+ *
+ * variant="hero":   empieza como el logo; LogoCohete.astro anima el ensamble y el despegue con el scroll.
+ * variant="rocket": el cohete ya armado (vuelo en el margen y aterrizaje en el footer).
+ *
+ * Decorativo: aria-hidden, sin foco. Solo se animan transform y opacity.
+ */
+import { LOGO } from '../brand/logo-paths';
+
+interface Props {
+	variant: 'hero' | 'rocket';
+	class?: string;
+}
+
+const { variant, class: className } = Astro.props;
+
+// ids únicos por instancia para los recortes de la R (puede haber varias en la página)
+const uid = `rk-${Math.random().toString(36).slice(2, 8)}`;
+const clip = { bowl: `${uid}-bowl`, leg: `${uid}-leg`, foot: `${uid}-foot` };
+
+// El hero conserva el encuadre del logo (con aire arriba y abajo para el cohete); el cohete armado se recorta a su silueta
+const viewBox = variant === 'hero' ? '16 -36 316 164' : '140 -36 66 186';
+
+// Humo al pie del cohete: desplazamiento y escala distintos por bocanada
+const puffs = [
+	{ cx: 174, dx: -14, dy: -5, s: 1.5, start: 7 },
+	{ cx: 168, dx: -26, dy: -3, s: 1.9, start: 7.4 },
+	{ cx: 180, dx: 15, dy: -6, s: 1.6, start: 7.2 },
+	{ cx: 184, dx: 27, dy: -2, s: 2.1, start: 7.7 },
+	{ cx: 172, dx: -6, dy: -9, s: 1.2, start: 8 },
+];
+---
+
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	viewBox={viewBox}
+	class:list={['rocket-art', className]}
+	data-variant={variant}
+	aria-hidden="true"
+	focusable="false"
+>
+	<defs>
+		<clipPath id={clip.bowl}><rect x="90" y="20" width="50" height="37.4"></rect></clipPath>
+		<clipPath id={clip.leg}><rect x="110" y="57.4" width="30" height="25"></rect></clipPath>
+		<clipPath id={clip.foot}><rect x="95" y="57.4" width="15" height="25"></rect></clipPath>
+	</defs>
+
+	{
+		variant === 'hero' && (
+			<g class="smoke">
+				{puffs.map((p) => (
+					<circle
+						class="puff"
+						cx={p.cx}
+						cy="112"
+						r="6"
+						style={`--dx:${p.dx}px;--dy:${p.dy}px;--s:${p.s};--start:${p.start}rem;transform-origin:${p.cx}px 112px`}
+					/>
+				))}
+			</g>
+		)
+	}
+
+	<g class="rocket">
+		<g class="flame">
+			<path class="flame-outer" d="M166 109Q174 122 174 134Q174 122 182 109Z"></path>
+			<path class="flame-inner" d="M170 109Q174 117 174 125Q174 117 178 109Z"></path>
+		</g>
+
+		<g stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+			<path class="piece accent p-brace-l" d={LOGO.braceLeft}></path>
+			<path class="piece accent p-brace-r" d={LOGO.braceRight}></path>
+			<rect class="piece accent p-cursor" {...LOGO.cursor}></rect>
+			<circle class="glass" cx="174" cy="36" r="5.5" stroke="none"></circle>
+			<path class="piece letters p-j" d={LOGO.letterJ}></path>
+			<g class="piece letters p-window"><path d={LOGO.letterR} clip-path={`url(#${clip.bowl})`}></path></g>
+			<g class="piece letters p-leg"><path d={LOGO.letterR} clip-path={`url(#${clip.leg})`}></path></g>
+			<g class="piece letters p-foot"><path d={LOGO.letterR} clip-path={`url(#${clip.foot})`}></path></g>
+		</g>
+
+		<g class="piece wordmark p-labs">{LOGO.wordmark.map((d) => <path d={d} />)}</g>
+	</g>
+</svg>
+
+<style>
+	@layer components {
+		.rocket-art {
+			overflow: hidden;
+		}
+
+		/* Colores: solo tokens, así claro/oscuro cambian sin parpadeo */
+		.accent {
+			fill: var(--accent);
+			stroke: var(--accent);
+		}
+
+		.letters {
+			fill: var(--logo-letters);
+			stroke: var(--logo-letters);
+		}
+
+		.wordmark {
+			fill: var(--logo-wordmark);
+		}
+
+		.glass {
+			fill: var(--illus-window-glass);
+			opacity: 0;
+		}
+
+		.flame-outer {
+			fill: var(--illus-flame);
+		}
+
+		.flame-inner {
+			fill: color-mix(in srgb, var(--illus-flame) 45%, white);
+		}
+
+		.flame {
+			opacity: 0;
+			transform-origin: 174px 109px;
+		}
+
+		.puff {
+			fill: color-mix(in srgb, var(--text-secondary) 35%, transparent);
+			opacity: 0;
+		}
+
+		/* Origen = centro de cada pieza; --to = transformación al cohete armado */
+		.p-cursor {
+			transform-origin: 154px 71.5px;
+			--to: translate(20px, -21.5px) rotate(90deg) scale(2.3, 2.6);
+		}
+
+		.p-brace-r {
+			transform-origin: 193.2px 53px;
+			--to: translate(-19.2px, -52.3px) rotate(-90deg) scale(1.1, 0.4);
+		}
+
+		.p-brace-l {
+			transform-origin: 37.2px 53px;
+			--to: translate(136.8px, 43.4px) rotate(-90deg) scale(0.9, 0.4);
+		}
+
+		.p-window {
+			transform-origin: 114.8px 43.4px;
+			--to: translate(59.2px, -7.4px) scale(0.55);
+		}
+
+		.p-leg {
+			transform-origin: 121.9px 66.2px;
+			--to: translate(67.4px, 9.8px) scale(0.95);
+		}
+
+		.p-j {
+			transform-origin: 73.7px 53px;
+			--to: translate(84.3px, 21px) scale(0.55);
+		}
+
+		.p-foot,
+		.p-labs {
+			--to: none;
+		}
+
+		/* Cohete ya armado */
+		.rocket-art[data-variant='rocket'] .piece {
+			transform: var(--to);
+		}
+
+		.rocket-art[data-variant='rocket'] .rocket {
+			transform-origin: 174px 109px;
+			transform: scale(1.15);
+		}
+
+		.rocket-art[data-variant='rocket'] .p-foot,
+		.rocket-art[data-variant='rocket'] .p-labs {
+			opacity: 0;
+		}
+
+		.rocket-art[data-variant='rocket'] .glass {
+			opacity: 1;
+		}
+	}
+</style>

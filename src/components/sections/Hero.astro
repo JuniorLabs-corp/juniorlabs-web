@@ -1,6 +1,6 @@
 ---
 import Container from '../layout/Container.astro';
-import Logo from '../brand/Logo.astro';
+import LogoCohete from '../decor/LogoCohete.astro';
 import { site } from '../../content/site';
 
 const { title, subtitle, primaryCta, secondaryCta } = site.hero;
@@ -8,12 +8,9 @@ const { title, subtitle, primaryCta, secondaryCta } = site.hero;
 
 <section aria-labelledby="hero-title" class="hero">
 	<Container class="grid items-center gap-8 sm:gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16">
-		<!--
-			Espacio reservado para la marca {JR_} (solo el cursor parpadea);
-			feat/logo-cohete lo reemplaza por la animación del cohete.
-		-->
+		<!-- Espacio reservado para la marca {JR_}: con el scroll se arma en cohete y despega (LogoCohete) -->
 		<div data-hero-logo class="hero-logo lg:order-last">
-			<Logo class="h-auto w-full" />
+			<LogoCohete />
 		</div>
 
 		<div class="min-w-0">
