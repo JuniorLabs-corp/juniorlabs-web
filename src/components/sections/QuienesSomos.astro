@@ -1,8 +1,12 @@
 ---
 import Container from '../layout/Container.astro';
+import BrandMark from '../brand/BrandMark.astro';
 import { site } from '../../content/site';
 
-const { id, title, body, cta, ctaNote } = site.quienesSomos;
+const { id, title, body, brandOrigin, cta, ctaNote } = site.quienesSomos;
+
+// La marca {JR_} se muestra con la tipografía y los colores del logo dentro del texto
+const BRAND = '{JR_}';
 ---
 
 <!-- Un solo bloque de texto sobre la empresa: sin fotos ni tarjetas por persona -->
@@ -13,6 +17,14 @@ const { id, title, body, cta, ctaNote } = site.quienesSomos;
 		<div>
 			<div class="flex max-w-prose flex-col gap-4 text-lg leading-relaxed text-pretty text-text-secondary sm:text-xl">
 				{body.map((paragraph) => <p>{paragraph}</p>)}
+				<p>
+					{brandOrigin.split(BRAND).map((part, i) => (
+						<>
+							{i > 0 && <BrandMark />}
+							{part}
+						</>
+					))}
+				</p>
 			</div>
 
 			<div class="mt-8">
