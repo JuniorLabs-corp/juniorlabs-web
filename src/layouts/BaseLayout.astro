@@ -44,7 +44,8 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefin
 			<Navbar />
 		</header>
 
-		<main id="contenido">
+		<!-- tabindex="-1": el skip link mueve el foco aquí (no solo el scroll); sin anillo porque no es un control -->
+		<main id="contenido" tabindex="-1" class="focus:outline-none">
 			<slot />
 		</main>
 

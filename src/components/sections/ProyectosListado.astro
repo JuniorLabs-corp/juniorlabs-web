@@ -5,6 +5,13 @@
  */
 import { site, type Proyecto } from '../../content/site';
 
+interface Props {
+	/** Nivel del título de cada ficha: un nivel debajo del título de la página o sección (h2 en /proyectos, h3 en la home). */
+	itemHeading?: 'h2' | 'h3';
+}
+
+const { itemHeading = 'h3' } = Astro.props;
+const ItemHeading = itemHeading;
 const items: Proyecto[] = site.proyectos.items;
 const { mailto } = site.contact;
 
@@ -31,7 +38,7 @@ const withContactLink = ({ name, description, contactWord }: Proyecto) => {
 				<li>
 					{/* El estado va después del nombre en el DOM (quien navega por títulos lo oye) y se muestra arriba con order */}
 					<article data-proyecto class="proyecto flex flex-col">
-						<h3 class="mt-4 text-lg font-semibold sm:text-xl">{item.name}</h3>
+						<ItemHeading class="mt-4 text-lg font-semibold sm:text-xl">{item.name}</ItemHeading>
 						<p class="status order-first self-start">
 							<span class="status-dot" aria-hidden="true" />
 							{item.status}

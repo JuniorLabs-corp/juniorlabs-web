@@ -306,6 +306,8 @@ function setup(
 	// ---------- Ticker: fuego que titila, humo, balanceo y estrellas ----------
 	const setFlame = { o: gsap.quickSetter(flame, 'opacity'), sy: gsap.quickSetter(flame, 'scaleY'), sx: gsap.quickSetter(flame, 'scaleX') };
 	const setSway = { x: gsap.quickSetter(sway, 'x', 'px'), r: gsap.quickSetter(sway, 'rotation', 'deg') };
+	const setCarrierOpacity = gsap.quickSetter(carrier, 'opacity');
+	let carrierOpacity = 1;
 	let flameOff = true;
 	let swayIdle = true;
 	let lastEmit = 0;
@@ -338,6 +340,14 @@ function setup(
 			setSway.x(0);
 			setSway.r(0);
 			swayIdle = true;
+		}
+
+		// pantallas angostas: el carril queda detrás de los párrafos; en vuelo se vuelve tenue para no restar
+		// contraste al texto, y recupera su opacidad en el hero y al aterrizar
+		const op = vw() < 768 ? 1 - 0.7 * flight : 1;
+		if (Math.abs(op - carrierOpacity) > 0.005) {
+			carrierOpacity = op;
+			setCarrierOpacity(op);
 		}
 
 		// humo
@@ -391,6 +401,7 @@ function setup(
 		darkMq.removeEventListener('change', onTheme);
 		gsap.killTweensOf([sway, flame]);
 		gsap.set([sway, flame, land, legs], { clearProps: 'all' });
+		gsap.set(carrier, { clearProps: 'opacity' });
 		document.documentElement.classList.remove('rocket-on');
 		starsSvg.replaceChildren();
 		smokeSvg.replaceChildren();

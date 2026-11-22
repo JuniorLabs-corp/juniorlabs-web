@@ -27,6 +27,6 @@ const sectionId = headingLevel === 'h2' ? id : undefined;
 			</p>
 		</div>
 
-		<ProyectosListado />
+		<ProyectosListado itemHeading={headingLevel === 'h1' ? 'h2' : 'h3'} />
 	</Container>
 </section>
