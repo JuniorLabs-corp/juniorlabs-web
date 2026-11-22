@@ -1,151 +1,47 @@
 ---
 /**
- * Plataforma de aterrizaje del cohete (footer). Solo CSS scroll-driven:
- * mientras la plataforma entra en pantalla, el cohete baja frenando con retrofuego,
- * toca, se aplasta un poco, rebota una vez y se asienta.
- *
- * Estado por defecto (sin soporte, reduced motion o sin JS): el cohete ya está posado.
- * Decorativo (aria-hidden). El cohete se recorta a la caja de la plataforma: nunca pasa
- * por encima de los enlaces o el texto del footer.
+ * Plataforma de aterrizaje en el footer. Es el destino del cohete de RocketScene (GSAP):
+ * el script lee la posición de [data-rocket-pad] para posarlo aquí.
+ * Sin animación (sin JS, reduced motion o antes de cargar GSAP) muestra el cohete ya posado.
+ * Decorativo (aria-hidden); su caja está reservada y no tapa enlaces ni texto.
  */
-import RocketArt from './RocketArt.astro';
+import RocketStatic from './RocketStatic.astro';
 ---
 
-<div class="landing-pad" data-landing-pad aria-hidden="true">
-	<div class="landing-rocket">
-		<RocketArt variant="rocket" class="h-auto w-full" />
-	</div>
-	<span class="landing-shadow"></span>
+<div class="landing-pad" data-rocket-pad aria-hidden="true">
+	<RocketStatic class="pad-rocket" />
+	<span class="pad-shadow"></span>
 </div>
 
 <style>
 	.landing-pad {
-		view-timeline: --pad block;
 		position: relative;
-		width: 4.5rem;
+		width: 5rem;
 		height: 8rem;
-		overflow: hidden;
 	}
 
-	.landing-rocket {
-		position: absolute;
-		left: 50%;
-		bottom: 0.375rem;
-		width: 2.25rem;
-		margin-left: -1.125rem;
-		transform-origin: 50% 100%;
-	}
-
-	/* Sin fuego cuando está posado */
-	.landing-rocket :global(.flame) {
-		opacity: 0;
-	}
-
-	.landing-shadow {
+	/* :global — la clase va en la raíz de RocketStatic, que no recibe el alcance de este componente */
+	.landing-pad :global(.pad-rocket) {
 		position: absolute;
 		left: 50%;
 		bottom: 0.25rem;
-		width: 3rem;
+		width: 3.5rem;
+		margin-left: -1.75rem;
+	}
+
+	.pad-shadow {
+		position: absolute;
+		left: 50%;
+		bottom: 0;
+		width: 4rem;
 		height: 0.375rem;
-		margin-left: -1.5rem;
+		margin-left: -2rem;
 		border-radius: 50%;
 		background: color-mix(in srgb, var(--text-secondary) 30%, transparent);
 	}
 
-
-	@supports (animation-timeline: view()) and (animation-range: 0 1px) {
-		@media (prefers-reduced-motion: no-preference) {
-			.landing-rocket,
-			.landing-rocket :global(.flame),
-			.landing-shadow {
-				animation-duration: auto;
-				animation-fill-mode: both;
-				animation-timing-function: linear;
-				animation-timeline: --pad;
-				/*
-					Desde que la plataforma empieza a entrar hasta 4rem después de verse completa.
-					Debajo siempre quedan ≥ ~90px (copyright y margen), así que el final siempre se alcanza.
-				*/
-				animation-range: entry 0% contain 4rem;
-			}
-
-			.landing-rocket {
-				animation-name: land;
-			}
-
-			.landing-rocket :global(.flame) {
-				animation-name: land-flame;
-			}
-
-			.landing-shadow {
-				animation-name: land-shadow;
-			}
-		}
-	}
-
-	/*
-		0–78%  baja frenando (ease-out fuerte)
-		78%    toca: se aplasta un poco
-		86%    rebote suave (6px)
-		100%   se asienta
-	*/
-	@keyframes land {
-		0% {
-			transform: translateY(-8rem);
-			animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
-		}
-		78% {
-			transform: translateY(0) scale(1.06, 0.94);
-			animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-		}
-		86% {
-			transform: translateY(-6px) scale(0.98, 1.02);
-			animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
-		}
-		100% {
-			transform: none;
-		}
-	}
-
-	/* Retrofuego: encendido al bajar, variando, y se apaga al tocar */
-	@keyframes land-flame {
-		0% {
-			opacity: 1;
-			transform: scale(1, 1.2);
-		}
-		20% {
-			transform: scale(0.92, 0.9);
-		}
-		38% {
-			transform: scale(1.05, 1.1);
-		}
-		56% {
-			transform: scale(0.9, 0.75);
-		}
-		70% {
-			opacity: 1;
-			transform: scale(1, 0.5);
-		}
-		78%,
-		100% {
-			opacity: 0;
-			transform: scale(0.8, 0);
-		}
-	}
-
-	@keyframes land-shadow {
-		0% {
-			opacity: 0;
-			transform: scale(0.3);
-			animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-		}
-		78% {
-			opacity: 1;
-			transform: scale(1.1, 1);
-		}
-		100% {
-			opacity: 1;
-			transform: none;
-		}
+	/* Con la escena animada activa, el cohete que aterriza es el de RocketScene */
+	:global(html.rocket-on .pad-rocket) {
+		visibility: hidden;
 	}
 </style>

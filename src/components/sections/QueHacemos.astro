@@ -31,7 +31,10 @@ const { id, title, intro, blocks } = site.queHacemos;
 	@layer components {
 		.que-hacemos {
 			/* Banda de superficie que separa la sección del hero */
-			background: var(--surface);
+			/* Translúcida: el cohete se ve pasar detrás, como a través de un vidrio */
+			background: color-mix(in srgb, var(--surface) 78%, transparent);
+			-webkit-backdrop-filter: blur(14px);
+			backdrop-filter: blur(14px);
 			border-block: 1px solid var(--border);
 		}
 

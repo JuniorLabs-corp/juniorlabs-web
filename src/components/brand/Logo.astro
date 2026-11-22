@@ -11,9 +11,11 @@ interface Props {
 	class?: string;
 	/** Nombre accesible. Sin él, el logo es decorativo (aria-hidden). */
 	label?: string;
+	/** El cursor parpadea (por defecto sí). En el hero va quieto: ahí solo se mueve con el scroll. */
+	blink?: boolean;
 }
 
-const { class: className, label } = Astro.props;
+const { class: className, label, blink = true } = Astro.props;
 ---
 
 <svg
@@ -26,7 +28,7 @@ const { class: className, label } = Astro.props;
 	<g stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
 		<g class="logo-accent">
 			<path d={LOGO.braceLeft} /><path d={LOGO.braceRight} /><rect
-				class="logo-cursor"
+				class:list={[{ 'logo-cursor': blink }]}
 				data-logo-cursor
 				{...LOGO.cursor}
 			/>

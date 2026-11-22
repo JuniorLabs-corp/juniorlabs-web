@@ -1,0 +1,180 @@
+---
+/**
+ * Escena del cohete (GSAP + ScrollTrigger + MorphSVG). Una capa fija detrás del contenido:
+ *   - Hero: el logo {JR_} labs se transforma pieza por pieza en un cohete (MorphSVG), toma impulso y despega.
+ *   - Vuelo: acompaña las secciones con balanceo; fuego que titila y estela de humo (vivo).
+ *   - Aterrizaje: baja a la plataforma del footer, despliega patas, toca, rebota y suelta humo.
+ *
+ * Va detrás del texto (z-index -1 en el contexto raíz: sobre el fondo, debajo del contenido), así que nunca lo tapa.
+ * Sin JS, con prefers-reduced-motion o hasta que GSAP carga: no se muestra; el hero enseña el logo
+ * estático ([data-rocket-home]) y el footer el cohete posado ([data-rocket-pad]).
+ * GSAP se importa en diferido, después de la carga, para no afectar el LCP.
+ */
+import { DETAILS, LOGO, VIEWBOX } from './rocket-geometry';
+---
+
+<div class="rocket-stage" data-rocket-stage aria-hidden="true">
+	<svg class="stage-layer" data-stars></svg>
+	<svg class="stage-layer" data-smoke></svg>
+	<div class="rocket-carrier" data-carrier>
+		<div class="rocket-land" data-land>
+		<div class="rocket-sway" data-sway>
+			<svg class="rocket-svg" viewBox={VIEWBOX} overflow="visible" data-rocket>
+				<g class="flame" data-flame>
+					<path class="flame-outer" d={DETAILS.flameOuter}></path>
+					<path class="flame-inner" d={DETAILS.flameInner}></path>
+				</g>
+				<path class="legs" data-legs d={`${DETAILS.legLeft}${DETAILS.legRight}`}></path>
+				<g stroke-linejoin="round" stroke-linecap="round">
+					<path class="piece letters" data-piece="finLeft" d={LOGO.letterJ}></path>
+					<path class="piece letters" data-piece="finRight" d={LOGO.rLeg}></path>
+					<path class="piece accent" data-piece="nozzle" d={LOGO.braceLeft}></path>
+					<path class="piece body" data-piece="body" d={LOGO.cursor}></path>
+					<path class="detail stripe" data-detail d={DETAILS.stripe}></path>
+					<path class="piece nose" data-piece="nose" d={LOGO.braceRight}></path>
+					<circle class="detail glass" data-detail cx={DETAILS.glass.cx} cy={DETAILS.glass.cy} r={DETAILS.glass.r}
+					></circle>
+					<path class="piece letters" data-piece="window" d={LOGO.rBowl} fill-rule="evenodd"></path>
+					<path class="detail glare" data-detail d={DETAILS.glare}></path>
+				</g>
+				<g class="wordmark" data-wordmark>{LOGO.wordmark.map((d) => <path d={d} />)}</g>
+			</svg>
+		</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	import { startRocketScene } from './rocket-scene';
+
+	const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+	const start = () => {
+		if (reduce.matches) return;
+		startRocketScene().catch(() => {
+			/* si algo falla, la página queda con el logo y el cohete estáticos */
+		});
+	};
+	// Después de la carga y en un momento ocioso: no compite con el contenido principal (LCP)
+	const idle = () => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 1500 }) : setTimeout(start, 200));
+	if (document.readyState === 'complete') idle();
+	else window.addEventListener('load', idle, { once: true });
+</script>
+
+<style>
+	.rocket-stage {
+		display: none;
+		position: fixed;
+		inset: 0;
+		/* -1 en el contexto raíz: encima del fondo de la página, debajo de todo el contenido */
+		z-index: -1;
+		pointer-events: none;
+		overflow: hidden;
+	}
+
+	:global(html.rocket-on) .rocket-stage {
+		display: block;
+	}
+
+	.stage-layer {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+	}
+
+	.rocket-carrier {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 400px;
+		height: 400px;
+		will-change: transform;
+	}
+
+	.rocket-land,
+	.rocket-sway,
+	.rocket-svg {
+		width: 100%;
+		height: 100%;
+	}
+
+	.rocket-svg {
+		overflow: visible;
+		/* --m: 0 = logo, 1 = cohete (lo anima GSAP); los colores se mezclan con los tokens */
+		--m: 0;
+	}
+
+	.piece {
+		stroke-width: 3.2;
+	}
+
+	.piece.accent {
+		fill: var(--accent);
+		stroke: var(--accent);
+	}
+
+	.piece.letters {
+		fill: var(--logo-letters);
+		stroke: var(--logo-letters);
+	}
+
+	.piece.body {
+		fill: color-mix(in srgb, var(--accent) calc((1 - var(--m)) * 100%), var(--illus-rocket-body));
+		stroke: color-mix(in srgb, var(--accent) calc((1 - var(--m)) * 100%), var(--logo-letters));
+	}
+
+	.piece.nose {
+		fill: color-mix(in srgb, var(--accent) calc((1 - var(--m)) * 100%), var(--logo-letters));
+		stroke: color-mix(in srgb, var(--accent) calc((1 - var(--m)) * 100%), var(--logo-letters));
+	}
+
+	.wordmark {
+		fill: var(--logo-wordmark);
+	}
+
+	.detail {
+		opacity: 0;
+	}
+
+	.stripe {
+		fill: var(--accent);
+	}
+
+	.glass {
+		fill: var(--illus-window-glass);
+	}
+
+	.glare {
+		fill: none;
+		stroke: white;
+		stroke-width: 4;
+		stroke-linecap: round;
+	}
+
+	.legs {
+		fill: none;
+		stroke: var(--logo-letters);
+		stroke-width: 6;
+		stroke-linecap: round;
+	}
+
+	.flame {
+		opacity: 0;
+	}
+
+	.flame-outer {
+		fill: var(--illus-flame);
+	}
+
+	.flame-inner {
+		fill: color-mix(in srgb, var(--illus-flame) 40%, white);
+	}
+
+	:global(.rocket-star) {
+		fill: var(--text);
+	}
+
+	:global(.rocket-puff) {
+		fill: color-mix(in srgb, var(--text-secondary) 40%, var(--background));
+	}
+</style>
