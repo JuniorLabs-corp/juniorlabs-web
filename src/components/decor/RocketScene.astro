@@ -66,6 +66,12 @@ import { DETAILS, LOGO, VIEWBOX } from './rocket-geometry';
 		inset: 0;
 		/* -1 en el contexto raíz: encima del fondo de la página, debajo de todo el contenido */
 		z-index: -1;
+		/*
+			Mismo color que el fondo de la página (visualmente idéntico: está detrás de todo el contenido).
+			Safari en iOS 26 pinta su barra superior con el fondo del elemento fijo que toca el borde de arriba;
+			transparente, la barra se quedaba con otro color.
+		*/
+		background-color: var(--background);
 		pointer-events: none;
 		overflow: hidden;
 	}

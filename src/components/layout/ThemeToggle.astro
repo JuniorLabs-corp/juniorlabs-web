@@ -49,8 +49,13 @@
 			} catch {
 				/* sin almacenamiento (modo privado): el cambio vale para esta página */
 			}
-			// Barra del navegador en móvil del mismo color que el fondo
-			document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute('content', COLORS[next]));
+			// Barra del navegador en móvil del mismo color que el fondo: una sola etiqueta sin media query
+			// (con las dos, el navegador seguiría usando la del modo del sistema)
+			const meta = document.createElement('meta');
+			meta.name = 'theme-color';
+			meta.content = COLORS[next];
+			document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.remove());
+			document.head.append(meta);
 			syncLabel();
 			document.dispatchEvent(new CustomEvent('themechange', { detail: next }));
 		});
