@@ -90,6 +90,39 @@
   --spacing-section: clamp(4rem, 10vw, 8rem);
 }
 
+/*
+  Cursor "_" de la marca {JR_}: parpadea como una terminal al cargar (4 ciclos ≈ 4 s) y queda fijo.
+  Vuelve a parpadear mientras el mouse o el foco están en el enlace que lo contiene.
+  Límite de 4 ciclos: WCAG 2.2.2 pide que lo que parpadea más de 5 s se pueda detener.
+*/
+@keyframes cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@layer components {
+  .logo-cursor {
+    animation: cursor-blink 1.06s steps(1, end) 4;
+  }
+
+  @media (hover: hover) {
+    a:hover .logo-cursor {
+      animation-iteration-count: infinite;
+    }
+  }
+
+  a:focus-visible .logo-cursor {
+    animation-iteration-count: infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-cursor {
+      animation: none;
+    }
+  }
+}
+
 /* Título de sección compartido (h2 de cada sección de la landing) */
 @layer components {
   .section-title {
