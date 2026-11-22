@@ -90,9 +90,9 @@ export const site = {
 		body: [
 			'Somos JuniorLabs, una empresa mexicana de software. Creamos nuestros propios productos y también desarrollamos por encargo: software a la medida, sistemas internos y páginas web para tu negocio.',
 		],
-		// Origen de la marca, bajo el texto de la empresa. Jorge primero: {JR_} viene de Jorge y Rogelio.
-		// Los espacios de «J de Jorge» y «R de Rogelio» son de no separación (U+00A0): nunca se parten
-		brandOrigin: 'La empezamos Jorge y Rogelio. De ahí viene nuestra marca, {JR_}: J de Jorge, R de Rogelio.',
+		// Origen de la marca, bajo el texto de la empresa. Jorge primero: {JR_} viene de Jorge y Roger.
+		// Los espacios de «J de Jorge» y «R de Roger» son de no separación (U+00A0): nunca se parten
+		brandOrigin: 'La empezamos Jorge y Roger. De ahí viene nuestra marca, {JR_}: J de Jorge, R de Roger.',
 		cta: { label: 'Escríbenos', href: mailto } satisfies Link,
 		ctaNote: '¿Tienes una idea o un problema que resolver?',
 	},
