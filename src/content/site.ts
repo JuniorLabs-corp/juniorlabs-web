@@ -73,8 +73,8 @@ export const site = {
 				text: 'Diseñamos herramientas que tu negocio usa para operar. Lo simple primero.',
 			},
 			{
-				title: 'Productos nuestros, no una agencia',
-				text: 'No somos una agencia genérica. Construimos productos propios y los mostramos aquí cuando ya se pueden usar.',
+				title: 'Productos propios y por encargo',
+				text: 'Creamos productos propios y también desarrollamos por encargo. Los productos propios aparecen aquí cuando ya se pueden usar.',
 			},
 			{
 				title: 'Pensado para México',
@@ -86,24 +86,12 @@ export const site = {
 	quienesSomos: {
 		id: 'quienes-somos',
 		title: 'Quiénes somos',
-		paragraphs: [
-			// Jorge primero: {JR_} viene de Jorge y Rogelio
-			'JuniorLabs es una empresa de software en México. La empezamos Jorge y Rogelio.',
-			//   = espacio de no separación: «J de Jorge» y «R de Rogelio» nunca se parten
-			'De ahí viene nuestra marca, {JR_}: J de Jorge, R de Rogelio.',
-			'Estamos construyendo nuestros primeros productos, pensados para negocios que operan aquí.',
+		// Un solo bloque sobre la empresa: sin fotos ni presentación individual de los fundadores
+		body: [
+			'Somos JuniorLabs, una empresa mexicana de software. Creamos nuestros propios productos y también desarrollamos por encargo: software a la medida, sistemas internos y páginas web para tu negocio.',
 		],
-		// Sin fotos de los fundadores (decisión de JuniorLabs): la sección usa sus iniciales, J y R.
-		founders: [
-			{
-				initial: 'J',
-				line: '[PENDIENTE: una línea de presentación de Jorge, con apellido y el nombre que quieran mostrar]',
-			},
-			{
-				initial: 'R',
-				line: '[PENDIENTE: una línea de presentación de Rogelio, con el nombre que quieran mostrar]',
-			},
-		],
+		cta: { label: 'Escríbenos', href: mailto } satisfies Link,
+		ctaNote: '¿Tienes una idea o un problema que resolver?',
 	},
 
 	proyectos: {
