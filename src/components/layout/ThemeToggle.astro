@@ -56,11 +56,6 @@
 			meta.content = COLORS[next];
 			document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.remove());
 			document.head.append(meta);
-			// Safari en iOS 26 no vuelve a leer el color de un elemento que ya conoce: se cambia por uno nuevo
-			requestAnimationFrame(() => {
-				const tint = document.querySelector('[data-safari-tint]');
-				tint?.replaceWith(tint.cloneNode());
-			});
 			syncLabel();
 			document.dispatchEvent(new CustomEvent('themechange', { detail: next }));
 		});
