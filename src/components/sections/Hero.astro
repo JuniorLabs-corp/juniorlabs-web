@@ -1,7 +1,6 @@
 ---
 import Container from '../layout/Container.astro';
-import LogoLight from '../../assets/brand/logo-light.svg';
-import LogoDark from '../../assets/brand/logo-dark.svg';
+import Logo from '../brand/Logo.astro';
 import { site } from '../../content/site';
 
 const { title, subtitle, primaryCta, secondaryCta } = site.hero;
@@ -10,24 +9,11 @@ const { title, subtitle, primaryCta, secondaryCta } = site.hero;
 <section aria-labelledby="hero-title" class="hero">
 	<Container class="grid items-center gap-8 sm:gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16">
 		<!--
-			Espacio reservado para la marca {JR_}. Hoy es estático;
+			Espacio reservado para la marca {JR_} (solo el cursor parpadea);
 			feat/logo-cohete lo reemplaza por la animación del cohete.
 		-->
 		<div data-hero-logo class="hero-logo lg:order-last">
-			<img
-				src={LogoLight.src}
-				width={LogoLight.width}
-				height={LogoLight.height}
-				alt=""
-				class="h-auto w-full dark:hidden"
-			/>
-			<img
-				src={LogoDark.src}
-				width={LogoDark.width}
-				height={LogoDark.height}
-				alt=""
-				class="hidden h-auto w-full dark:block"
-			/>
+			<Logo class="h-auto w-full" />
 		</div>
 
 		<div class="min-w-0">

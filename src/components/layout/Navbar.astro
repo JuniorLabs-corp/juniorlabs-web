@@ -1,7 +1,6 @@
 ---
 import Container from './Container.astro';
-import LogoLight from '../../assets/brand/logo-light.svg';
-import LogoDark from '../../assets/brand/logo-dark.svg';
+import Logo from '../brand/Logo.astro';
 import { site } from '../../content/site';
 
 const { brand, links, cta } = site.nav;
@@ -12,20 +11,7 @@ const panelId = 'menu-principal';
 	<!-- min-h + flex-wrap: con texto grande la barra baja a dos filas en vez de desbordarse -->
 	<Container class="flex min-h-18 flex-wrap items-center justify-between gap-x-3 gap-y-2 py-2 sm:gap-x-6">
 		<a href="/" class="shrink-0 rounded-md">
-			<img
-				src={LogoLight.src}
-				width={LogoLight.width}
-				height={LogoLight.height}
-				alt={brand}
-				class="h-7 w-auto dark:hidden"
-			/>
-			<img
-				src={LogoDark.src}
-				width={LogoDark.width}
-				height={LogoDark.height}
-				alt={brand}
-				class="hidden h-7 w-auto dark:block"
-			/>
+			<Logo label={brand} class="h-7 w-auto" />
 		</a>
 
 		<!-- Escritorio: enlaces en línea -->
