@@ -48,6 +48,12 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefin
 		</script>
 	</head>
 	<body class="min-h-dvh">
+		<!--
+			Franja de 1px para Safari en iOS 26: pinta su barra superior con el fondo de un elemento fijo pegado
+			al borde de arriba (ya no usa theme-color). Color sólido del tema; invisible sobre el header.
+			ThemeToggle la reemplaza por una nueva al cambiar de tema, para que Safari vuelva a leer el color.
+		-->
+		<div class="safari-tint" aria-hidden="true" data-safari-tint></div>
 		<a
 			href="#contenido"
 			class="sr-only rounded-full bg-accent font-semibold text-on-accent focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2"
