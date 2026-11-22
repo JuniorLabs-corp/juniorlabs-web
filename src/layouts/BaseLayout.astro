@@ -31,8 +31,29 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefin
 		<link rel="manifest" href="/site.webmanifest" />
 		<meta name="theme-color" content="#F4F7FA" media="(prefers-color-scheme: light)" />
 		<meta name="theme-color" content="#0B1730" media="(prefers-color-scheme: dark)" />
+		<!-- Tema elegido con el botón (ThemeToggle): se aplica antes de pintar para que no parpadee el otro -->
+		<script is:inline>
+			try {
+				const t = localStorage.getItem('theme');
+				if (t === 'light' || t === 'dark') {
+					document.documentElement.dataset.theme = t;
+					// Una sola etiqueta sin media query: si quedaran las dos, el navegador usaría la del modo del sistema
+					const meta = document.createElement('meta');
+					meta.name = 'theme-color';
+					meta.content = t === 'dark' ? '#0B1730' : '#F4F7FA';
+					document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.remove());
+					document.head.append(meta);
+				}
+			} catch {}
+		</script>
 	</head>
 	<body class="min-h-dvh">
+		<!--
+			Franja de 1px para Safari en iOS 26: pinta su barra superior con el fondo de un elemento fijo pegado
+			al borde de arriba (ya no usa theme-color). Color sólido del tema; invisible sobre el header.
+			ThemeToggle la reemplaza por una nueva al cambiar de tema, para que Safari vuelva a leer el color.
+		-->
+		<div class="safari-tint" aria-hidden="true" data-safari-tint></div>
 		<a
 			href="#contenido"
 			class="sr-only rounded-full bg-accent font-semibold text-on-accent focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2"

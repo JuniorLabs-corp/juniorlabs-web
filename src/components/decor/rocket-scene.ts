@@ -198,6 +198,8 @@ function setup(
 		sx: gsap.quickSetter(land, 'scaleX'),
 		sy: gsap.quickSetter(land, 'scaleY'),
 		legs: gsap.quickSetter(legs, 'scaleY'),
+		// plegadas no basta con aplastarlas: los pies son trazos horizontales y quedarían como rayitas
+		legsOpacity: gsap.quickSetter(legs, 'opacity'),
 	};
 	let landIdle = true;
 	const updateLanding = (r: DOMRect, dt: number) => {
@@ -219,7 +221,9 @@ function setup(
 			const ls = 1 + (pp.scale / cs - 1) * m;
 			setLand.sx(ls);
 			setLand.sy(ls);
-			setLand.legs(Math.max(easeLegs(gsap.utils.clamp(0, 1, (landP - 0.55) / 0.35)), 0.001));
+			const lp = gsap.utils.clamp(0, 1, (landP - 0.55) / 0.35);
+			setLand.legs(Math.max(easeLegs(lp), 0.001));
+			setLand.legsOpacity(lp > 0 ? 1 : 0);
 			landIdle = false;
 		} else if (!landIdle) {
 			setLand.x(0);
@@ -227,6 +231,7 @@ function setup(
 			setLand.sx(1);
 			setLand.sy(1);
 			setLand.legs(0.001);
+			setLand.legsOpacity(0);
 			landIdle = true;
 		}
 
@@ -266,6 +271,7 @@ function setup(
 	};
 	const onTheme = () => (lastScroll = -1); // fuerza a repintar las estrellas
 	darkMq.addEventListener('change', onTheme);
+	document.addEventListener('themechange', onTheme); // botón de tema (ThemeToggle)
 
 	// ---------- Humo (partículas reutilizadas) ----------
 	const puffs = Array.from({ length: 40 }, () => {
@@ -399,6 +405,7 @@ function setup(
 	return () => {
 		gsap.ticker.remove(tick);
 		darkMq.removeEventListener('change', onTheme);
+		document.removeEventListener('themechange', onTheme);
 		gsap.killTweensOf([sway, flame]);
 		gsap.set([sway, flame, land, legs], { clearProps: 'all' });
 		gsap.set(carrier, { clearProps: 'opacity' });
