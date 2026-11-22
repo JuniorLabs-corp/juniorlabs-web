@@ -1,6 +1,7 @@
 ---
 import Container from './Container.astro';
 import Logo from '../brand/Logo.astro';
+import ThemeToggle from './ThemeToggle.astro';
 import { site } from '../../content/site';
 import { isCurrentPage } from '../../lib/nav';
 
@@ -31,7 +32,9 @@ const isCurrent = (href: string) => isCurrentPage(href, Astro.url.pathname);
 			</ul>
 		</nav>
 
-		<div class="flex items-center gap-2">
+		<!-- flex-wrap: con texto grande los botones bajan de fila en vez de salirse de la pantalla -->
+		<div class="flex flex-wrap items-center justify-end gap-2">
+			<ThemeToggle />
 			<a href={cta.href} class="nav-cta bg-accent text-on-accent">
 				{cta.label}
 			</a>

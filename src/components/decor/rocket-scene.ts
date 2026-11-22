@@ -266,6 +266,7 @@ function setup(
 	};
 	const onTheme = () => (lastScroll = -1); // fuerza a repintar las estrellas
 	darkMq.addEventListener('change', onTheme);
+	document.addEventListener('themechange', onTheme); // botón de tema (ThemeToggle)
 
 	// ---------- Humo (partículas reutilizadas) ----------
 	const puffs = Array.from({ length: 40 }, () => {
@@ -399,6 +400,7 @@ function setup(
 	return () => {
 		gsap.ticker.remove(tick);
 		darkMq.removeEventListener('change', onTheme);
+		document.removeEventListener('themechange', onTheme);
 		gsap.killTweensOf([sway, flame]);
 		gsap.set([sway, flame, land, legs], { clearProps: 'all' });
 		gsap.set(carrier, { clearProps: 'opacity' });

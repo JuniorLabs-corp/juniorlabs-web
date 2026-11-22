@@ -31,6 +31,17 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefin
 		<link rel="manifest" href="/site.webmanifest" />
 		<meta name="theme-color" content="#F4F7FA" media="(prefers-color-scheme: light)" />
 		<meta name="theme-color" content="#0B1730" media="(prefers-color-scheme: dark)" />
+		<!-- Tema elegido con el botón (ThemeToggle): se aplica antes de pintar para que no parpadee el otro -->
+		<script is:inline>
+			try {
+				const t = localStorage.getItem('theme');
+				if (t === 'light' || t === 'dark') {
+					document.documentElement.dataset.theme = t;
+					const c = t === 'dark' ? '#0B1730' : '#F4F7FA';
+					document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute('content', c));
+				}
+			} catch {}
+		</script>
 	</head>
 	<body class="min-h-dvh">
 		<a
