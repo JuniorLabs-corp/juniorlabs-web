@@ -1,21 +1,32 @@
 ---
 import Container from '../layout/Container.astro';
+import ProyectosListado from './ProyectosListado.astro';
 import { site } from '../../content/site';
 
-const { id, title, intro, status, card } = site.proyectos;
+interface Props {
+	/** En /proyectos el título es el h1 de la página; en la home, un h2 de sección. */
+	headingLevel?: 'h1' | 'h2';
+}
+
+const { headingLevel = 'h2' } = Astro.props;
+const Heading = headingLevel;
+const { id, title, intro, status } = site.proyectos;
+// En la home la sección lleva el ancla #proyectos; en la página no hace falta
+const sectionId = headingLevel === 'h2' ? id : undefined;
 ---
 
-<section id={id} aria-labelledby={`${id}-title`} class="py-section">
-	<Container>
-		<div class="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-			<h2 id={`${id}-title`} class="font-mono text-3xl font-bold tracking-tight">{title}</h2>
-			<p class="text-sm text-text-secondary">{status}</p>
+<section id={sectionId} aria-labelledby={`${id}-title`} class="py-section">
+	<Container class="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+		<div>
+			<Heading id={`${id}-title`} class="section-title">{title}</Heading>
+			<p class="mt-4 max-w-[38ch] text-lg leading-relaxed text-pretty text-text-secondary">{intro}</p>
+			<!-- Texto en --text (contraste AA); el acento va en el punto -->
+			<p data-section-status class="mt-6 inline-flex items-center gap-2 font-mono text-sm font-semibold text-text">
+				<span class="size-2 rounded-full bg-accent" aria-hidden="true"></span>
+				{status}
+			</p>
 		</div>
-		<p class="mt-4 max-w-[60ch] leading-relaxed text-text-secondary">{intro}</p>
-		<article class="mt-10 max-w-md rounded-2xl border border-border bg-surface p-6">
-			<h3 class="font-semibold">{card.name}</h3>
-			<p class="mt-1 text-sm text-text-secondary">{card.status}</p>
-			<p class="mt-4 leading-relaxed text-text-secondary">{card.description}</p>
-		</article>
+
+		<ProyectosListado />
 	</Container>
 </section>

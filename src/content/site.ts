@@ -99,12 +99,23 @@ export const site = {
 		title: 'Proyectos',
 		intro: 'Aquí van a vivir nuestros productos cuando ya se puedan usar. Hoy estamos construyendo el primero.',
 		status: 'Próximamente',
-		card: {
-			name: '[PENDIENTE: nombre del primer producto]',
-			status: 'Próximamente',
+		// Página /proyectos
+		page: {
+			title: 'Proyectos | JuniorLabs',
 			description:
-				'Pronto vamos a contar qué estamos construyendo. Si quieres saber cuándo esté listo, escríbenos.',
+				'Aquí van a vivir nuestros productos cuando ya se puedan usar. Hoy estamos construyendo el primero.',
 		},
+		// Fichas de producto: para publicar un producto, se agrega un elemento a esta lista.
+		// `contactWord` es la palabra de la descripción que enlaza al correo (mailto).
+		items: [
+			{
+				name: '[PENDIENTE: nombre del primer producto]',
+				status: 'Próximamente',
+				description:
+					'Pronto vamos a contar qué estamos construyendo. Si quieres saber cuándo esté listo, escríbenos.',
+				contactWord: 'escríbenos',
+			},
+		],
 	},
 
 	footer: {
