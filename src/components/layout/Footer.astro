@@ -21,7 +21,7 @@ const { brand, links } = site.nav;
 
 		<nav aria-label="Pie de página" class="lg:justify-self-end">
 			<!-- role="list": Safari/VoiceOver quita la semántica de lista cuando list-style es none -->
-			<ul role="list" class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-8">
+			<ul role="list" class="flex flex-col sm:flex-row sm:flex-wrap sm:gap-x-8 sm:gap-y-3 lg:justify-end">
 				{
 					links.map((link) => (
 						<li>
@@ -41,6 +41,10 @@ const { brand, links } = site.nav;
 <style>
 	@layer components {
 		.footer-mail {
+			/* Área táctil de 44px: es la acción principal del footer */
+			display: inline-flex;
+			align-items: center;
+			min-height: 2.75rem;
 			color: var(--text);
 			font-weight: 600;
 			text-decoration: underline;
@@ -66,7 +70,8 @@ const { brand, links } = site.nav;
 			color: var(--text);
 		}
 
-		@media (width >= 40rem) {
+		/* Solo con mouse o trackpad se compacta; en pantallas táctiles (también tabletas) se queda en 44px */
+		@media (hover: hover) and (pointer: fine) {
 			.footer-link {
 				min-height: auto;
 			}
