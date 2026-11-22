@@ -147,6 +147,11 @@
     }
   }
 
+  /* Timeline de lectura de la página: el cohete del vuelo (LogoCohete) avanza con él */
+  #contenido {
+    view-timeline: --main block;
+  }
+
   :focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;

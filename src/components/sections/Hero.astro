@@ -1,6 +1,7 @@
 ---
 import Container from '../layout/Container.astro';
 import LogoCohete from '../decor/LogoCohete.astro';
+import RocketFlight from '../decor/RocketFlight.astro';
 import { site } from '../../content/site';
 
 const { title, subtitle, primaryCta, secondaryCta } = site.hero;
@@ -12,6 +13,7 @@ const { title, subtitle, primaryCta, secondaryCta } = site.hero;
 		<div data-hero-logo class="hero-logo lg:order-last">
 			<LogoCohete />
 		</div>
+		<RocketFlight />
 
 		<div class="min-w-0">
 			<h1 id="hero-title" class="hero-title font-mono font-bold text-balance">

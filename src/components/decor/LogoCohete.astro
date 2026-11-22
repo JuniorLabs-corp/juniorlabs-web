@@ -2,7 +2,7 @@
 /**
  * Logo {JR_} → cohete. Solo CSS scroll-driven animations (0 KB de JS):
  *   - Hero: con los primeros 12rem de scroll el logo se arma en cohete, toma impulso y despega.
- *   - Vuelo (≥ 80rem): un cohete pequeño acompaña las secciones en el margen derecho, donde no hay texto.
+ *   - El vuelo por las secciones vive en RocketFlight.astro (≥ 80rem).
  *   - El aterrizaje vive en LandingPad.astro (footer).
  *
  * Nada se mueve sin scroll: si el usuario se detiene, todo se detiene (WCAG 2.2.2).
@@ -70,13 +70,19 @@ import RocketArt from './RocketArt.astro';
 
 			.logo-cohete :global(.rocket-art .flame-inner) {
 				transform-origin: 174px 109px;
-				animation: rocket-flame-core linear both;
+				animation-name: rocket-flame-core;
+				animation-duration: auto;
+				animation-timing-function: linear;
+				animation-fill-mode: both;
 				animation-timeline: scroll(root);
 				animation-range: 0 12rem;
 			}
 
 			.logo-cohete :global(.rocket-art .puff) {
-				animation: rocket-puff linear both;
+				animation-name: rocket-puff;
+				animation-duration: auto;
+				animation-timing-function: linear;
+				animation-fill-mode: both;
 				animation-timeline: scroll(root);
 				animation-range: var(--start) 13rem;
 			}

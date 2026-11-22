@@ -1,0 +1,148 @@
+---
+/**
+ * Vuelo del cohete por las secciones (solo ≥ 80rem). Va fuera del recuadro del hero porque ese
+ * recuadro usa `contain: paint`, que volvería "fijo al recuadro" a un elemento position: fixed.
+ *
+ * El contenido mide 72rem, así que desde 80rem queda un carril sin texto en el margen derecho.
+ * Lee el timeline --main (view-timeline de #contenido en global.css): entra después del despegue
+ * del hero, se balancea mientras se lee y baja hacia el footer, donde aterriza (LandingPad.astro).
+ * Sin soporte, con reduced motion o en pantallas más angostas no se muestra. Decorativo.
+ */
+import RocketArt from './RocketArt.astro';
+---
+
+<div class="rocket-flight" data-rocket-flight aria-hidden="true">
+	<div class="flight-sway">
+		<RocketArt variant="rocket" class="h-auto w-full" />
+	</div>
+</div>
+
+<style>
+	.rocket-flight {
+		display: none;
+	}
+
+	@supports (animation-timeline: scroll()) {
+		@media (prefers-reduced-motion: no-preference) and (width >= 80rem) {
+			/*
+				Vuelo en el margen derecho: el contenido mide 72rem, así que desde 80rem queda un carril
+				libre de texto. Lee el timeline --main (view-timeline de #contenido en global.css):
+				  entra después del despegue del hero, se balancea mientras se lee y baja hacia el footer.
+			*/
+			.rocket-flight {
+				display: block;
+				position: fixed;
+				z-index: 10;
+				top: calc(50% - 3.5rem);
+				right: max(1rem, calc((100vw - 72rem) / 2 - 4.5rem));
+				width: 2.5rem;
+				pointer-events: none;
+				/* longhands: el minificador junta el shorthand con animation-timeline y lo invalida */
+				animation-name: flight-in, flight-out;
+				animation-duration: auto, auto;
+				animation-timing-function: linear, linear;
+				animation-fill-mode: both, forwards;
+				animation-timeline: --main, --main;
+				animation-range:
+					contain 12rem contain 22rem,
+					exit 0% exit 40%;
+			}
+
+			.flight-sway {
+				transform-origin: 50% 70%;
+				animation-name: flight-sway;
+				animation-duration: auto;
+				animation-timing-function: linear;
+				animation-fill-mode: both;
+				animation-timeline: --main;
+				animation-range: contain 22rem exit 0%;
+			}
+
+			.rocket-flight :global(.flame) {
+				opacity: 1;
+				animation-name: flight-flame;
+				animation-duration: auto;
+				animation-timing-function: linear;
+				animation-fill-mode: both;
+				animation-timeline: --main;
+				animation-range: contain 12rem exit 40%;
+			}
+		}
+	}
+
+	@keyframes flight-in {
+		0% {
+			opacity: 0;
+			transform: translateY(3rem);
+			animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+		}
+		100% {
+			opacity: 1;
+			transform: none;
+		}
+	}
+
+	@keyframes flight-out {
+		0% {
+			opacity: 1;
+			transform: none;
+			animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+		}
+		100% {
+			opacity: 0;
+			transform: translateY(40vh);
+		}
+	}
+
+	/* Balanceo suave mientras se lee: oscilaciones irregulares, ligadas al scroll */
+	@keyframes flight-sway {
+		0% {
+			transform: none;
+		}
+		18% {
+			transform: translateX(-4px) rotate(-3deg);
+		}
+		34% {
+			transform: translateX(3px) rotate(2.5deg);
+		}
+		52% {
+			transform: translateX(-2px) rotate(-1.5deg);
+		}
+		70% {
+			transform: translateX(4px) rotate(3deg);
+		}
+		86% {
+			transform: translateX(-3px) rotate(-2deg);
+		}
+		100% {
+			transform: none;
+		}
+	}
+
+	@keyframes flight-flame {
+		0% {
+			transform: scale(1, 0.9);
+		}
+		12% {
+			transform: scale(0.9, 1.2);
+		}
+		26% {
+			transform: scale(1.05, 0.95);
+		}
+		41% {
+			transform: scale(0.92, 1.3);
+		}
+		57% {
+			transform: scale(1.04, 1);
+		}
+		73% {
+			transform: scale(0.9, 1.25);
+		}
+		88% {
+			transform: scale(1.06, 0.9);
+		}
+		100% {
+			transform: scale(1, 1.1);
+		}
+	}
+</style>
