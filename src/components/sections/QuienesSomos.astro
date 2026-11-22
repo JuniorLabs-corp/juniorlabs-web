@@ -3,6 +3,9 @@ import Container from '../layout/Container.astro';
 import { site } from '../../content/site';
 
 const { id, title, paragraphs, founders } = site.quienesSomos;
+
+// La marca {JR_} se muestra en la tipografía del logo dentro del texto
+const BRAND = '{JR_}';
 ---
 
 <section id={id} aria-labelledby={`${id}-title`} class="py-section">
@@ -10,7 +13,18 @@ const { id, title, paragraphs, founders } = site.quienesSomos;
 		<div>
 			<h2 id={`${id}-title`} class="section-title">{title}</h2>
 			<div class="mt-4 flex max-w-[38ch] flex-col gap-4 text-lg leading-relaxed text-pretty text-text-secondary">
-				{paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+				{
+					paragraphs.map((paragraph) => (
+						<p>
+							{paragraph.split(BRAND).map((part, i) => (
+								<>
+									{i > 0 && <span class="font-mono font-bold whitespace-nowrap text-text">{BRAND}</span>}
+									{part}
+								</>
+							))}
+						</p>
+					))
+				}
 			</div>
 		</div>
 

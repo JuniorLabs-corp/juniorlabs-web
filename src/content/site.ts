@@ -77,6 +77,8 @@ export const site = {
 		paragraphs: [
 			// Jorge primero: {JR_} viene de Jorge y Rogelio
 			'JuniorLabs es una empresa de software en México. La empezamos Jorge y Rogelio.',
+			//   = espacio de no separación: «J de Jorge» y «R de Rogelio» nunca se parten
+			'De ahí viene nuestra marca, {JR_}: J de Jorge, R de Rogelio.',
 			'Estamos construyendo nuestros primeros productos, pensados para negocios que operan aquí.',
 		],
 		// Sin fotos de los fundadores (decisión de JuniorLabs): la sección usa sus iniciales, J y R.
