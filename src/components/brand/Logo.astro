@@ -1,0 +1,57 @@
+---
+/**
+ * Logo {JR_} labs en SVG en línea.
+ * Trazos idénticos a src/assets/brand/logo-light.svg; los colores salen de los tokens
+ * (accent, logo-letters, logo-wordmark), así que un solo logo sirve para claro y oscuro.
+ * El cursor "_" parpadea al cargar (≈4 s) y al pasar el mouse o el foco por el enlace que lo contiene.
+ */
+import { LOGO } from './logo-paths';
+
+interface Props {
+	class?: string;
+	/** Nombre accesible. Sin él, el logo es decorativo (aria-hidden). */
+	label?: string;
+	/** El cursor parpadea (por defecto sí). En el hero va quieto: ahí solo se mueve con el scroll. */
+	blink?: boolean;
+}
+
+const { class: className, label, blink = true } = Astro.props;
+---
+
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	viewBox={LOGO.viewBox}
+	class:list={['logo', className]}
+	{...(label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' })}
+	focusable="false"
+>
+	<g stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+		<g class="logo-accent">
+			<path d={LOGO.braceLeft} /><path d={LOGO.braceRight} /><rect
+				class:list={[{ 'logo-cursor': blink }]}
+				data-logo-cursor
+				{...LOGO.cursor}
+			/>
+		</g>
+		<g class="logo-letters"><path d={LOGO.letterJ} /><path d={LOGO.letterR} /></g>
+	</g>
+	<g class="logo-wordmark">{LOGO.wordmark.map((d) => <path d={d} />)}</g>
+</svg>
+
+<style>
+	@layer components {
+		.logo .logo-accent {
+			fill: var(--accent);
+			stroke: var(--accent);
+		}
+
+		.logo .logo-letters {
+			fill: var(--logo-letters);
+			stroke: var(--logo-letters);
+		}
+
+		.logo .logo-wordmark {
+			fill: var(--logo-wordmark);
+		}
+	}
+</style>

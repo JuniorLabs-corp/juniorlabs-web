@@ -1,0 +1,32 @@
+---
+import Container from '../layout/Container.astro';
+import ProyectosListado from './ProyectosListado.astro';
+import { site } from '../../content/site';
+
+interface Props {
+	/** En /proyectos el título es el h1 de la página; en la home, un h2 de sección. */
+	headingLevel?: 'h1' | 'h2';
+}
+
+const { headingLevel = 'h2' } = Astro.props;
+const Heading = headingLevel;
+const { id, title, intro, status } = site.proyectos;
+// En la home la sección lleva el ancla #proyectos; en la página no hace falta
+const sectionId = headingLevel === 'h2' ? id : undefined;
+---
+
+<section id={sectionId} aria-labelledby={`${id}-title`} class="py-section">
+	<Container class="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+		<div>
+			<Heading id={`${id}-title`} class="section-title">{title}</Heading>
+			<p class="mt-4 max-w-[38ch] text-lg leading-relaxed text-pretty text-text-secondary">{intro}</p>
+			<!-- Texto en --text (contraste AA); el acento va en el punto -->
+			<p data-section-status class="mt-6 inline-flex items-center gap-2 font-mono text-sm font-semibold text-text">
+				<span class="size-2 rounded-full bg-accent" aria-hidden="true"></span>
+				{status}
+			</p>
+		</div>
+
+		<ProyectosListado itemHeading={headingLevel === 'h1' ? 'h2' : 'h3'} />
+	</Container>
+</section>

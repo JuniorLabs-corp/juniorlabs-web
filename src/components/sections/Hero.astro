@@ -1,0 +1,148 @@
+---
+import Container from '../layout/Container.astro';
+import Logo from '../brand/Logo.astro';
+import RocketScene from '../decor/RocketScene.astro';
+import { site } from '../../content/site';
+
+const { title, subtitle, primaryCta, secondaryCta } = site.hero;
+---
+
+<!--
+	Hero como escena: el logo {JR_} grande al centro y el texto debajo.
+	Con JS y sin reduced motion la escena es más alta y su contenido queda fijo (sticky) mientras el
+	logo se transforma en cohete (RocketScene, GSAP). Sin JS o con reduced motion es un hero normal.
+-->
+<section aria-labelledby="hero-title" class="hero-scene" data-hero-scene>
+	<div class="hero-sticky">
+		<Container class="h-full">
+			<!-- div propio: los estilos con alcance de este componente no llegan al div de Container -->
+			<div class="hero-inner">
+			<div class="hero-home" data-rocket-home>
+				<Logo class="hero-logo" blink={false} />
+			</div>
+
+			<div class="hero-copy" data-hero-copy>
+				<h1 id="hero-title" class="hero-title font-mono font-bold text-balance">
+					{title}
+				</h1>
+				<p class="mx-auto mt-5 max-w-[34rem] text-lg leading-relaxed text-pretty text-text-secondary sm:text-xl">
+					{subtitle}
+				</p>
+				<div class="mt-7 flex flex-wrap justify-center gap-3" data-hero-ctas>
+					<a href={primaryCta.href} class="hero-cta bg-accent text-on-accent">
+						{primaryCta.label}
+					</a>
+					<a
+						href={secondaryCta.href}
+						class="hero-cta border border-border text-text hover:border-text-secondary hover:bg-surface"
+					>
+						{secondaryCta.label}
+					</a>
+				</div>
+			</div>
+			</div>
+		</Container>
+	</div>
+	<RocketScene />
+</section>
+
+<style>
+	@layer components {
+		.hero-scene {
+			position: relative;
+		}
+
+		.hero-sticky {
+			display: grid;
+			min-height: calc(100svh - 4.5rem);
+		}
+
+		/* Escena: más recorrido de scroll y contenido fijo mientras el logo se transforma */
+		@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+			.hero-scene {
+				height: calc(100svh - 4.5rem + 90svh);
+			}
+
+			.hero-sticky {
+				position: sticky;
+				top: 4.5rem;
+				height: calc(100svh - 4.5rem);
+				min-height: 0;
+			}
+
+			/* GSAP no cargó (red caída, error): hero normal, sin el recorrido de scroll muerto */
+			:global(html.rocket-off) .hero-scene {
+				height: auto;
+			}
+
+			:global(html.rocket-off) .hero-sticky {
+				position: static;
+				height: auto;
+				min-height: calc(100svh - 4.5rem);
+			}
+		}
+
+		.hero-inner {
+			height: 100%;
+			display: grid;
+			grid-template-rows: minmax(0, 1fr) auto;
+			align-items: center;
+			justify-items: center;
+			gap: clamp(1rem, 3vh, 2rem);
+			padding-block: clamp(1.5rem, 5vh, 3.5rem);
+			text-align: center;
+		}
+
+		/* Espacio del logo (y del cohete al armarse): crece con la pantalla */
+		.hero-home {
+			width: min(86vw, 36rem, 62vh);
+		}
+
+		/* Con la escena activa, el logo que se ve es el de RocketScene, superpuesto exacto */
+		:global(html.rocket-on) .hero-home :global(.hero-logo) {
+			visibility: hidden;
+		}
+
+		.hero-copy {
+			position: relative;
+			z-index: 1;
+		}
+
+		.hero-title {
+			font-size: clamp(2rem, 1.3rem + 3vw, 3.5rem);
+			line-height: 1.06;
+			letter-spacing: -0.035em;
+			max-width: 20ch;
+			margin-inline: auto;
+			overflow-wrap: break-word;
+		}
+
+		.hero-cta {
+			display: inline-flex;
+			align-items: center;
+			min-height: 3rem;
+			padding-inline: 1.5rem;
+			border-radius: 9999px;
+			font-weight: 600;
+			transition:
+				transform 150ms cubic-bezier(0.23, 1, 0.32, 1),
+				background-color 150ms ease,
+				border-color 150ms ease;
+		}
+
+		.hero-cta:active {
+			transform: scale(0.97);
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.hero-cta {
+				transition:
+					background-color 150ms ease,
+					border-color 150ms ease;
+			}
+			.hero-cta:active {
+				transform: none;
+			}
+		}
+	}
+</style>

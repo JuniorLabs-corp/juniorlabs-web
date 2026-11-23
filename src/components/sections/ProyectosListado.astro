@@ -1,0 +1,111 @@
+---
+/**
+ * Fichas de proyectos (site.proyectos.items). Lo usan la sección de la home y la página /proyectos.
+ * Hoy hay una sola ficha pendiente; para publicar un producto se agrega un elemento en site.ts.
+ */
+import { site, type Proyecto } from '../../content/site';
+
+interface Props {
+	/** Nivel del título de cada ficha: un nivel debajo del título de la página o sección (h2 en /proyectos, h3 en la home). */
+	itemHeading?: 'h2' | 'h3';
+}
+
+const { itemHeading = 'h3' } = Astro.props;
+const ItemHeading = itemHeading;
+const items: Proyecto[] = site.proyectos.items;
+const { mailto } = site.contact;
+
+// Parte la descripción para enlazar la palabra de contacto al correo.
+// Si la palabra no aparece (p. ej. Marketing cambió el copy), el build falla en vez de perder el enlace en silencio.
+const withContactLink = ({ name, description, contactWord }: Proyecto) => {
+	if (!contactWord) return { before: description, word: '', after: '' };
+	const text = description.normalize('NFC');
+	const word = contactWord.normalize('NFC');
+	const at = text.lastIndexOf(word);
+	if (at === -1) {
+		throw new Error(`site.proyectos: «${word}» no aparece en la descripción de «${name}»; no se puede enlazar al correo.`);
+	}
+	return { before: text.slice(0, at), word, after: text.slice(at + word.length) };
+};
+---
+
+<!-- role="list": Safari/VoiceOver quita la semántica de lista cuando list-style es none -->
+<ul role="list" class="grid gap-4 sm:gap-6">
+	{
+		items.map((item) => {
+			const desc = withContactLink(item);
+			return (
+				<li>
+					{/* El estado va después del nombre en el DOM (quien navega por títulos lo oye) y se muestra arriba con order */}
+					<article data-proyecto class="proyecto flex flex-col">
+						<ItemHeading class="mt-4 text-lg font-semibold sm:text-xl">{item.name}</ItemHeading>
+						<p class="status order-first self-start">
+							<span class="status-dot" aria-hidden="true" />
+							{item.status}
+						</p>
+						<p class="mt-2 max-w-[52ch] leading-relaxed text-pretty text-text-secondary">
+							{desc.before}
+							{desc.word && (
+								<a href={mailto} class="contact-link">
+									{desc.word}
+								</a>
+							)}
+							{desc.after}
+						</p>
+					</article>
+				</li>
+			);
+		})
+	}
+</ul>
+
+<style>
+	@layer components {
+		.proyecto {
+			padding: 1.5rem;
+			border-radius: 1.25rem;
+			background: var(--surface);
+			border: 1px solid var(--border);
+		}
+
+		@media (width >= 40rem) {
+			.proyecto {
+				padding: 2rem;
+			}
+		}
+
+		/* Estado: punto + texto, para que no dependa solo del color */
+		.status {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+			padding: 0.25rem 0.75rem;
+			border-radius: 9999px;
+			border: 1px solid var(--border);
+			font-size: 0.875rem;
+			font-weight: 500;
+			color: var(--text);
+		}
+
+		.status-dot {
+			width: 0.5rem;
+			height: 0.5rem;
+			border-radius: 9999px;
+			background: var(--accent);
+		}
+
+		/* Texto en --text (contraste AA en claro); el acento va en el subrayado */
+		.contact-link {
+			color: var(--text);
+			font-weight: 600;
+			text-decoration: underline;
+			text-decoration-color: var(--accent);
+			text-underline-offset: 0.2em;
+			text-decoration-thickness: 1px;
+		}
+
+		.contact-link:hover {
+			text-decoration-thickness: 2px;
+		}
+	}
+</style>

@@ -1,0 +1,97 @@
+---
+import '../styles/global.css';
+import Navbar from '../components/layout/Navbar.astro';
+import Footer from '../components/layout/Footer.astro';
+import { site } from '../content/site';
+
+interface Props {
+	title?: string;
+	description?: string;
+	/** Imagen de vista previa al compartir (Open Graph), ruta dentro de public/. PNG de 1200×630. */
+	image?: string;
+	/** Páginas que no deben aparecer en buscadores (p. ej. 404): noindex y sin canonical. */
+	noindex?: boolean;
+}
+
+const {
+	title = site.meta.title,
+	description = site.meta.description,
+	image = site.meta.image,
+	noindex = false,
+} = Astro.props;
+
+// Solo hay canonical si astro.config define `site`; sin él, la URL absoluta no se puede construir.
+const canonical = Astro.site && !noindex ? new URL(Astro.url.pathname, Astro.site) : undefined;
+// Open Graph exige URL absoluta para la imagen
+const ogImage = new URL(image, Astro.site ?? Astro.url);
+---
+
+<!doctype html>
+<html lang="es-MX">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		{canonical && <link rel="canonical" href={canonical} />}
+		{noindex && <meta name="robots" content="noindex" />}
+
+		<!-- Vista previa al compartir (WhatsApp, LinkedIn, X…) -->
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={site.meta.siteName} />
+		<meta property="og:locale" content="es_MX" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		{canonical && <meta property="og:url" content={canonical} />}
+		<meta property="og:image" content={ogImage} />
+		<meta property="og:image:type" content="image/png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content={site.meta.imageAlt} />
+		<meta name="twitter:card" content="summary_large_image" />
+
+		<link rel="icon" href="/favicon.ico" sizes="48x48" />
+		<link rel="icon" href="/icon.svg" type="image/svg+xml" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<link rel="manifest" href="/site.webmanifest" />
+		<meta name="theme-color" content="#F4F7FA" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#0B1730" media="(prefers-color-scheme: dark)" />
+		<!-- Tema elegido con el botón (ThemeToggle): se aplica antes de pintar para que no parpadee el otro -->
+		<script is:inline>
+			try {
+				const t = localStorage.getItem('theme');
+				if (t === 'light' || t === 'dark') {
+					document.documentElement.dataset.theme = t;
+					// Una sola etiqueta sin media query: si quedaran las dos, el navegador usaría la del modo del sistema
+					const meta = document.createElement('meta');
+					meta.name = 'theme-color';
+					meta.content = t === 'dark' ? '#0B1730' : '#F4F7FA';
+					document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.remove());
+					document.head.append(meta);
+				}
+			} catch {}
+		</script>
+	</head>
+	<body class="min-h-dvh">
+		<a
+			href="#contenido"
+			class="sr-only rounded-full bg-accent font-semibold text-on-accent focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2"
+		>
+			Saltar al contenido
+		</a>
+
+		<header class="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
+			<Navbar />
+		</header>
+
+		<!-- tabindex="-1": el skip link mueve el foco aquí (no solo el scroll); sin anillo porque no es un control -->
+		<main id="contenido" tabindex="-1" class="focus:outline-none">
+			<slot />
+		</main>
+
+		<footer id="contacto" class="border-t border-border">
+			<Footer />
+		</footer>
+	</body>
+</html>

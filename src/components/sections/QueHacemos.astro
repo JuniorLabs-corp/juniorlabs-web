@@ -1,0 +1,59 @@
+---
+import Container from '../layout/Container.astro';
+import { site } from '../../content/site';
+
+const { id, title, intro, blocks } = site.queHacemos;
+---
+
+<section id={id} aria-labelledby={`${id}-title`} class="que-hacemos py-section">
+	<Container class="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+		<!-- Título e intro acompañan la lectura de los bloques en escritorio -->
+		<div class="lg:sticky lg:top-28 lg:self-start">
+			<h2 id={`${id}-title`} class="section-title">{title}</h2>
+			<p class="mt-4 max-w-[38ch] text-lg leading-relaxed text-pretty text-text-secondary">{intro}</p>
+		</div>
+
+		<!-- role="list": Safari/VoiceOver quita la semántica de lista cuando list-style es none -->
+		<ul class="blocks" role="list">
+			{
+				blocks.map((block) => (
+					<li class="block-row">
+						<h3 class="text-lg font-semibold sm:text-xl">{block.title}</h3>
+						<p class="mt-2 max-w-[52ch] leading-relaxed text-pretty text-text-secondary">{block.text}</p>
+					</li>
+				))
+			}
+		</ul>
+	</Container>
+</section>
+
+<style>
+	@layer components {
+		.que-hacemos {
+			/* Banda de superficie que separa la sección del hero */
+			/* Translúcida: el cohete se ve pasar detrás (sin blur: costaría repintar cada cuadro) */
+			background: color-mix(in srgb, var(--surface) 86%, transparent);
+			border-block: 1px solid var(--border);
+		}
+
+		.block-row {
+			padding-block: 1.75rem;
+			border-top: 1px solid var(--border);
+		}
+
+		@media (width >= 64rem) {
+			.block-row {
+				padding-block: 2.25rem;
+			}
+
+			.block-row:first-child {
+				border-top: 0;
+				padding-top: 0;
+			}
+
+			.block-row:last-child {
+				padding-bottom: 0;
+			}
+		}
+	}
+</style>
