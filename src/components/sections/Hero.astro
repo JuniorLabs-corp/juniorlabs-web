@@ -69,6 +69,17 @@ const { title, subtitle, primaryCta, secondaryCta } = site.hero;
 				height: calc(100svh - 4.5rem);
 				min-height: 0;
 			}
+
+			/* GSAP no cargó (red caída, error): hero normal, sin el recorrido de scroll muerto */
+			:global(html.rocket-off) .hero-scene {
+				height: auto;
+			}
+
+			:global(html.rocket-off) .hero-sticky {
+				position: static;
+				height: auto;
+				min-height: calc(100svh - 4.5rem);
+			}
 		}
 
 		.hero-inner {
