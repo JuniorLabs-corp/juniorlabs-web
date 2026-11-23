@@ -30,6 +30,10 @@ export const site = {
 		// Alternativa: 'JuniorLabs: software claro para negocios en México'
 		description:
 			'JuniorLabs es una empresa de software en México. Construimos herramientas para operar tu negocio día a día. Escríbenos a contacto@juniorlabs.com.mx.',
+		siteName: 'JuniorLabs',
+		// Vista previa al compartir (Open Graph): public/og.png, 1200×630, hecha con el logo
+		image: '/og.png',
+		imageAlt: 'Logo {JR_} labs de JuniorLabs',
 	},
 
 	contact: {
@@ -117,6 +121,15 @@ export const site = {
 				contactWord: 'escríbenos',
 			},
 		] satisfies Proyecto[],
+	},
+
+	// Página 404
+	notFound: {
+		title: 'Página no encontrada | JuniorLabs',
+		description: 'La página que buscas no existe o cambió de lugar.',
+		heading: 'Página no encontrada',
+		text: 'La página que buscas no existe o cambió de lugar.',
+		cta: { label: 'Volver al inicio', href: '/' } satisfies Link,
 	},
 
 	footer: {
