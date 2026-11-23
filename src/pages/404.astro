@@ -1,0 +1,49 @@
+---
+/**
+ * 404: Cloudflare Pages sirve dist/404.html con estado 404 a cualquier URL que no exista.
+ * Sin este archivo trataría el sitio como SPA y devolvería la home con 200.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/layout/Container.astro';
+import { site } from '../content/site';
+
+const { title, description, heading, text, cta } = site.notFound;
+---
+
+<BaseLayout title={title} description={description} noindex>
+	<section aria-labelledby="not-found-title" class="py-section">
+		<Container class="flex min-h-[50svh] flex-col items-center justify-center text-center">
+			<p class="font-mono text-sm font-semibold text-text-secondary">Error 404</p>
+			<h1 id="not-found-title" class="section-title mt-3 text-balance">{heading}</h1>
+			<p class="mt-4 max-w-[38ch] text-lg leading-relaxed text-pretty text-text-secondary">{text}</p>
+			<a href={cta.href} class="not-found-cta mt-8 bg-accent text-on-accent">{cta.label}</a>
+		</Container>
+	</section>
+</BaseLayout>
+
+<style>
+	@layer components {
+		.not-found-cta {
+			display: inline-flex;
+			align-items: center;
+			min-height: 3rem;
+			padding-inline: 1.5rem;
+			border-radius: 9999px;
+			font-weight: 600;
+			transition: transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+		}
+
+		.not-found-cta:active {
+			transform: scale(0.97);
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.not-found-cta {
+				transition: none;
+			}
+			.not-found-cta:active {
+				transform: none;
+			}
+		}
+	}
+</style>

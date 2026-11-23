@@ -8,7 +8,8 @@
  * Va detrás del texto (z-index -1 en el contexto raíz: sobre el fondo, debajo del contenido), así que nunca lo tapa.
  * Sin JS, con prefers-reduced-motion o hasta que GSAP carga: no se muestra; el hero enseña el logo
  * estático ([data-rocket-home]) y el footer el cohete posado ([data-rocket-pad]).
- * GSAP se importa en diferido, después de la carga, para no afectar el LCP.
+ * GSAP se importa en diferido (import dinámico) al terminar de leer el HTML; si falla, html.rocket-off
+ * devuelve el hero a su altura normal.
  */
 import { DETAILS, LOGO, VIEWBOX } from './rocket-geometry';
 ---
@@ -47,16 +48,16 @@ import { DETAILS, LOGO, VIEWBOX } from './rocket-geometry';
 <script>
 	import { startRocketScene } from './rocket-scene';
 
-	// gsap.matchMedia decide (reduced motion, soporte de scripting); si las preferencias cambian, se adapta
-	const start = () => {
-		startRocketScene().catch(() => {
-			/* si algo falla, la página queda con el logo y el cohete estáticos */
-		});
-	};
-	// Después de la carga y en un momento ocioso: no compite con el contenido principal (LCP)
-	const idle = () => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 1500 }) : setTimeout(start, 200));
-	if (document.readyState === 'complete') idle();
-	else window.addEventListener('load', idle, { once: true });
+	// gsap.matchMedia decide (reduced motion, soporte de scripting); si las preferencias cambian, se adapta.
+	// Arranca en cuanto se lee el HTML (los módulos corren justo antes de DOMContentLoaded): mientras GSAP
+	// no carga, el hero alto (CSS) está quieto, así que conviene acortar esa ventana.
+	startRocketScene().catch(() => {
+		// Si algo falla, la página queda con el logo y el cohete estáticos, y el hero vuelve a su
+		// altura normal (Hero.astro, html.rocket-off) para no dejar ~90svh de scroll sin animación
+		const root = document.documentElement;
+		root.classList.remove('rocket-on');
+		root.classList.add('rocket-off');
+	});
 </script>
 
 <style>
