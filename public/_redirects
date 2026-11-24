@@ -1,0 +1,3 @@
+# Cloudflare Pages: redirecciones permanentes (se aplican antes de servir archivos estáticos)
+/proyectos   /productos/  301
+/proyectos/  /productos/  301
