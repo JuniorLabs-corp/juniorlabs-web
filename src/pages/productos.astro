@@ -1,0 +1,57 @@
+---
+/**
+ * /productos: los productos propios de JuniorLabs en un Bento Grid.
+ * Mientras no haya productos publicados, cada recuadro se ve bloqueado (candado + estado).
+ * La URL anterior, /proyectos, redirige aquí (public/_redirects y astro.config.mjs).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/layout/Container.astro';
+import ProductosBento from '../components/productos/ProductosBento.astro';
+import { site } from '../content/site';
+import { splitContactWord } from '../lib/contact-link';
+
+const { id, title, intro, page } = site.productos;
+const { mailto } = site.contact;
+const note = splitContactWord(page.note, page.noteContactWord, 'site.productos.page.note');
+---
+
+<BaseLayout title={page.title} description={page.description}>
+	<section aria-labelledby={`${id}-title`} class="py-section">
+		<Container>
+			<h1 id={`${id}-title`} class="section-title">{title}</h1>
+			<p class="mt-4 max-w-[38ch] text-lg leading-relaxed text-pretty text-text-secondary">{intro}</p>
+
+			<ProductosBento label={page.gridLabel} class="mt-12 sm:mt-16" />
+
+			<p class="mt-10 max-w-[52ch] leading-relaxed text-pretty text-text-secondary sm:mt-12">
+				{note.before}
+				{
+					note.word && (
+						<a href={mailto} class="contact-link">
+							{note.word}
+						</a>
+					)
+				}
+				{note.after}
+			</p>
+		</Container>
+	</section>
+</BaseLayout>
+
+<style>
+	@layer components {
+		/* Mismo enlace al correo que la ficha de la home: texto en --text, acento en el subrayado */
+		.contact-link {
+			color: var(--text);
+			font-weight: 600;
+			text-decoration: underline;
+			text-decoration-color: var(--accent);
+			text-underline-offset: 0.2em;
+			text-decoration-thickness: 1px;
+		}
+
+		.contact-link:hover {
+			text-decoration-thickness: 2px;
+		}
+	}
+</style>

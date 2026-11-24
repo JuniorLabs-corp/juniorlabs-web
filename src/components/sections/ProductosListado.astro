@@ -1,32 +1,24 @@
 ---
 /**
- * Fichas de proyectos (site.proyectos.items). Lo usan la sección de la home y la página /proyectos.
+ * Fichas de aviso de productos (site.productos.items) en la sección de la home.
  * Hoy hay una sola ficha pendiente; para publicar un producto se agrega un elemento en site.ts.
+ * La página /productos muestra el Bento Grid (components/productos/ProductosBento.astro).
  */
-import { site, type Proyecto } from '../../content/site';
+import { site, type FichaProducto } from '../../content/site';
+import { splitContactWord } from '../../lib/contact-link';
 
 interface Props {
-	/** Nivel del título de cada ficha: un nivel debajo del título de la página o sección (h2 en /proyectos, h3 en la home). */
+	/** Nivel del título de cada ficha: un nivel debajo del título de la sección. */
 	itemHeading?: 'h2' | 'h3';
 }
 
 const { itemHeading = 'h3' } = Astro.props;
 const ItemHeading = itemHeading;
-const items: Proyecto[] = site.proyectos.items;
+const items: FichaProducto[] = site.productos.items;
 const { mailto } = site.contact;
 
-// Parte la descripción para enlazar la palabra de contacto al correo.
-// Si la palabra no aparece (p. ej. Marketing cambió el copy), el build falla en vez de perder el enlace en silencio.
-const withContactLink = ({ name, description, contactWord }: Proyecto) => {
-	if (!contactWord) return { before: description, word: '', after: '' };
-	const text = description.normalize('NFC');
-	const word = contactWord.normalize('NFC');
-	const at = text.lastIndexOf(word);
-	if (at === -1) {
-		throw new Error(`site.proyectos: «${word}» no aparece en la descripción de «${name}»; no se puede enlazar al correo.`);
-	}
-	return { before: text.slice(0, at), word, after: text.slice(at + word.length) };
-};
+const withContactLink = ({ name, description, contactWord }: FichaProducto) =>
+	splitContactWord(description, contactWord, `site.productos («${name}»)`);
 ---
 
 <!-- role="list": Safari/VoiceOver quita la semántica de lista cuando list-style es none -->
@@ -37,7 +29,7 @@ const withContactLink = ({ name, description, contactWord }: Proyecto) => {
 			return (
 				<li>
 					{/* El estado va después del nombre en el DOM (quien navega por títulos lo oye) y se muestra arriba con order */}
-					<article data-proyecto class="proyecto flex flex-col">
+					<article data-producto class="producto flex flex-col">
 						<ItemHeading class="mt-4 text-lg font-semibold sm:text-xl">{item.name}</ItemHeading>
 						<p class="status order-first self-start">
 							<span class="status-dot" aria-hidden="true" />
@@ -61,7 +53,7 @@ const withContactLink = ({ name, description, contactWord }: Proyecto) => {
 
 <style>
 	@layer components {
-		.proyecto {
+		.producto {
 			padding: 1.5rem;
 			border-radius: 1.25rem;
 			background: var(--surface);
@@ -69,7 +61,7 @@ const withContactLink = ({ name, description, contactWord }: Proyecto) => {
 		}
 
 		@media (width >= 40rem) {
-			.proyecto {
+			.producto {
 				padding: 2rem;
 			}
 		}

@@ -1,0 +1,355 @@
+---
+/**
+ * Un recuadro del Bento Grid de /productos.
+ * - Bloqueado: silueta de software bajo un velo esmerilado, candado y estado. No es interactivo.
+ * - Disponible: nombre, descripción y enlace (toda la tarjeta es clicable), con imagen o silueta de fondo.
+ */
+import { Image } from 'astro:assets';
+import ProductoSilueta from './ProductoSilueta.astro';
+import { statusLabel, type ProductoSlot } from '../../content/productos';
+
+interface Props {
+	item: ProductoSlot;
+	/** Nivel del nombre del producto publicado (un nivel debajo del título de la página). */
+	headingLevel?: 'h2' | 'h3';
+}
+
+const { item: slot, headingLevel = 'h2' } = Astro.props;
+const Heading = headingLevel;
+const label = statusLabel[slot.status];
+---
+
+<li class="slot" data-size={slot.size} data-status={slot.status}>
+	{
+		slot.status === 'disponible' ? (
+			<>
+				<div class="slot-art" aria-hidden={slot.image ? undefined : 'true'}>
+					{slot.image ? (
+						<Image src={slot.image.src} alt={slot.image.alt} class="slot-image" widths={[480, 960]} sizes="(width >= 64rem) 36rem, 100vw" />
+					) : (
+						<ProductoSilueta variant={slot.silhouette} />
+					)}
+				</div>
+				<div class="slot-scrim" aria-hidden="true" />
+				<article class="slot-body slot-body--available">
+					<Heading class="text-lg font-semibold text-balance sm:text-xl">
+						<a href={slot.href} class="slot-link">
+							{slot.name}
+						</a>
+					</Heading>
+					<p class="mt-2 max-w-[44ch] leading-relaxed text-pretty text-text-secondary">{slot.description}</p>
+					<p class="slot-label order-first mb-3">
+						<span class="slot-dot" aria-hidden="true" />
+						{label}
+					</p>
+				</article>
+			</>
+		) : (
+			<>
+				<div class="slot-art" aria-hidden="true">
+					<ProductoSilueta variant={slot.silhouette} />
+				</div>
+				<div class="slot-veil" aria-hidden="true" />
+				<div class="slot-body slot-body--locked">
+					<span class="slot-lock" aria-hidden="true">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M8 10.5V7.75a4 4 0 0 1 8 0v2.75" />
+							<rect x="5.25" y="10.5" width="13.5" height="9.75" rx="2.75" />
+							<path d="M12 14.6v1.9" />
+						</svg>
+					</span>
+					<p class="slot-label">
+						<span class="slot-dot" aria-hidden="true" />
+						<span class="sr-only">Producto sin publicar: </span>
+						{label}
+					</p>
+				</div>
+			</>
+		)
+	}
+</li>
+
+<style>
+	@layer components {
+		/* Curva de salida de todo el sitio: arranca rápido y se asienta suave */
+		.slot {
+			--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+			--veil-blur: 14px;
+
+			position: relative;
+			isolation: isolate;
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+			border-radius: 1.25rem;
+			/* Superficie un paso más hundida que la ficha: se lee como placa en espera, no como contenido */
+			background: color-mix(in srgb, var(--surface) 70%, var(--background));
+			border: 1px solid var(--border);
+			color: var(--text-secondary);
+			box-shadow:
+				inset 0 1px 0 rgb(255 255 255 / 0.07),
+				0 1px 2px rgb(8 18 40 / 0.06);
+			transition:
+				transform 500ms var(--ease-out),
+				box-shadow 500ms var(--ease-out),
+				border-color 300ms ease;
+		}
+
+		/* Alturas en móvil (una columna): cada tamaño conserva su peso para que la pila tenga ritmo */
+		.slot[data-size='hero'] {
+			min-height: 20rem;
+		}
+
+		.slot[data-size='tall'] {
+			min-height: 16rem;
+		}
+
+		.slot[data-size='square'],
+		.slot[data-size='wide'] {
+			min-height: 11rem;
+		}
+
+		/* Tableta y escritorio: las filas las fija la cuadrícula; los tamaños se vuelven spans */
+		@media (width >= 40rem) {
+			/* Misma especificidad que las alturas de móvil y va después: las anula */
+			.slot[data-size] {
+				min-height: 0;
+			}
+
+			.slot[data-size='hero'] {
+				grid-column: span 2;
+				grid-row: span 2;
+			}
+
+			.slot[data-size='tall'] {
+				grid-row: span 2;
+			}
+
+			.slot[data-size='wide'] {
+				grid-column: span 2;
+			}
+		}
+
+		/*
+		  Capas decorativas fuera del flujo: la silueta SVG es cuadrada y, en flujo, estiraría el recuadro.
+		  La silueta sobra un poco por cada lado para poder moverse en hover sin mostrar bordes.
+		*/
+		.slot-art {
+			position: absolute;
+			z-index: 0;
+			inset: -4%;
+			transform: scale(1);
+			transition: transform 900ms var(--ease-out);
+		}
+
+		/* Velo esmerilado: más denso al centro (donde va el candado) y más claro hacia las orillas */
+		.slot-veil {
+			position: absolute;
+			inset: 0;
+			z-index: 1;
+			background: radial-gradient(
+				120% 95% at 50% 55%,
+				color-mix(in srgb, var(--surface) 78%, transparent) 0%,
+				color-mix(in srgb, var(--surface) 46%, transparent) 100%
+			);
+			-webkit-backdrop-filter: blur(var(--veil-blur)) saturate(140%);
+			backdrop-filter: blur(var(--veil-blur)) saturate(140%);
+			transition:
+				-webkit-backdrop-filter 700ms var(--ease-out),
+				backdrop-filter 700ms var(--ease-out);
+		}
+
+		.slot-body {
+			position: relative;
+			z-index: 2;
+			flex: 1;
+		}
+
+		.slot-body--locked {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 0.875rem;
+			padding: 1.5rem;
+		}
+
+		/* Candado en una placa casi sólida: no se apila vidrio sobre vidrio */
+		.slot-lock {
+			display: grid;
+			place-items: center;
+			width: 3rem;
+			height: 3rem;
+			border-radius: 9999px;
+			background: color-mix(in srgb, var(--surface) 92%, transparent);
+			border: 1px solid var(--border);
+			color: var(--text-secondary);
+			box-shadow:
+				inset 0 1px 0 rgb(255 255 255 / 0.08),
+				0 6px 16px -8px rgb(8 18 40 / 0.35);
+			transition:
+				color 400ms var(--ease-out),
+				border-color 400ms var(--ease-out),
+				box-shadow 500ms var(--ease-out);
+		}
+
+		.slot-lock svg {
+			width: 1.25rem;
+			height: 1.25rem;
+		}
+
+		.slot[data-size='hero'] .slot-lock {
+			width: 3.75rem;
+			height: 3.75rem;
+		}
+
+		.slot[data-size='hero'] .slot-lock svg {
+			width: 1.5rem;
+			height: 1.5rem;
+		}
+
+		/* Estado: punto + texto (no depende solo del color), en mono como el estado de la sección */
+		.slot-label {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+			font-family: var(--font-mono);
+			font-size: 0.8125rem;
+			font-weight: 600;
+			letter-spacing: 0.01em;
+			color: var(--text);
+		}
+
+		.slot-dot {
+			width: 0.4375rem;
+			height: 0.4375rem;
+			border-radius: 9999px;
+			border: 1.5px solid var(--text-secondary);
+		}
+
+		/* En desarrollo: punto lleno en acento, como el estado de la home */
+		.slot[data-status='en-desarrollo'] .slot-dot,
+		.slot[data-status='disponible'] .slot-dot {
+			border-color: var(--accent);
+			background: var(--accent);
+		}
+
+		/* Producto publicado */
+		.slot-image {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+
+		.slot-scrim {
+			position: absolute;
+			inset: 0;
+			z-index: 1;
+			background: linear-gradient(
+				to top,
+				color-mix(in srgb, var(--surface) 96%, transparent) 30%,
+				color-mix(in srgb, var(--surface) 40%, transparent)
+			);
+		}
+
+		.slot-body--available {
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-end;
+			padding: 1.5rem;
+		}
+
+		@media (width >= 40rem) {
+			.slot-body--available {
+				padding: 2rem;
+			}
+		}
+
+		.slot-link {
+			color: var(--text);
+		}
+
+		/* Toda la tarjeta es el área del enlace */
+		.slot-link::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			z-index: 3;
+		}
+
+		.slot-link:focus-visible {
+			outline: none;
+		}
+
+		.slot:has(.slot-link:focus-visible) {
+			outline: 2px solid var(--accent);
+			outline-offset: 3px;
+		}
+
+		/*
+		  Hover (solo con mouse o trackpad): la placa sube un poco, el borde toma luz del acento,
+		  el candado se enciende y el velo se aclara un poco: se adivina más forma, nunca contenido.
+		*/
+		@media (hover: hover) and (pointer: fine) {
+			.slot:hover {
+				--veil-blur: 10px;
+				transform: translateY(-3px);
+				border-color: color-mix(in srgb, var(--accent) 38%, var(--border));
+				box-shadow:
+					inset 0 1px 0 rgb(255 255 255 / 0.1),
+					0 22px 44px -22px rgb(8 18 40 / 0.45);
+			}
+
+			.slot:hover .slot-art {
+				transform: scale(1.035) translateY(-1.5%);
+			}
+
+			.slot:hover .slot-lock {
+				color: var(--accent);
+				border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+				box-shadow:
+					inset 0 1px 0 rgb(255 255 255 / 0.1),
+					0 6px 22px -6px color-mix(in srgb, var(--accent) 50%, transparent);
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.slot,
+			.slot-art {
+				transition:
+					border-color 200ms ease,
+					box-shadow 200ms ease;
+			}
+
+			.slot:hover,
+			.slot:hover .slot-art {
+				transform: none;
+			}
+
+			.slot-veil {
+				transition: none;
+			}
+		}
+
+		/* Menos transparencia: velo casi sólido y sin desenfoque */
+		@media (prefers-reduced-transparency: reduce) {
+			.slot-veil {
+				-webkit-backdrop-filter: none;
+				backdrop-filter: none;
+				background: color-mix(in srgb, var(--surface) 92%, transparent);
+			}
+		}
+
+		/* Más contraste: bordes definidos y velo sólido */
+		@media (prefers-contrast: more) {
+			.slot,
+			.slot-lock {
+				border-color: var(--text-secondary);
+			}
+
+			.slot-veil {
+				background: var(--surface);
+			}
+		}
+	}
+</style>

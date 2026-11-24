@@ -9,8 +9,8 @@ export interface Link {
 	href: string;
 }
 
-/** Ficha de producto en /proyectos y en la sección de la home. */
-export interface Proyecto {
+/** Ficha de aviso en la sección Productos de la home. */
+export interface FichaProducto {
 	name: string;
 	status: string;
 	description: string;
@@ -21,8 +21,12 @@ export interface Proyecto {
 const email = 'contacto@juniorlabs.com.mx';
 const mailto = `mailto:${email}`;
 
-const proyectosIntro =
+const productosIntro =
 	'Aquí van a vivir nuestros productos cuando ya se puedan usar. Hoy estamos construyendo el primero.';
+
+// Aviso con enlace al correo: lo usan la ficha de la home y el cierre de la página /productos
+const productosAviso =
+	'Pronto vamos a contar qué estamos construyendo. Si quieres saber cuándo esté listo, escríbenos.';
 
 export const site = {
 	meta: {
@@ -47,8 +51,8 @@ export const site = {
 			{ label: 'Inicio', href: '/' },
 			{ label: 'Qué hacemos', href: '/#que-hacemos' },
 			{ label: 'Quiénes somos', href: '/#quienes-somos' },
-			// La página /proyectos ya existe; la sección #proyectos sigue en la home
-			{ label: 'Proyectos', href: '/proyectos/' },
+			// La página /productos ya existe; la sección #productos sigue en la home
+			{ label: 'Productos', href: '/productos/' },
 		] satisfies Link[],
 		cta: { label: 'Escríbenos', href: mailto } satisfies Link,
 		// Alternativa: { label: 'Contacto', href: mailto }
@@ -64,7 +68,7 @@ export const site = {
 		primaryCta: { label: 'Escríbenos', href: mailto } satisfies Link,
 		// Alternativas: 'Platiquemos' · 'Háblanos'
 		secondaryCta: { label: 'Conoce qué hacemos', href: '#que-hacemos' } satisfies Link,
-		// Alternativa: { label: 'Ver proyectos', href: '#proyectos' }
+		// Alternativa: { label: 'Ver productos', href: '#productos' }
 	},
 
 	queHacemos: {
@@ -101,26 +105,31 @@ export const site = {
 		ctaNote: '¿Tienes una idea o un problema que resolver?',
 	},
 
-	proyectos: {
-		id: 'proyectos',
-		title: 'Proyectos',
-		intro: proyectosIntro,
+	productos: {
+		id: 'productos',
+		title: 'Productos',
+		intro: productosIntro,
 		status: 'Próximamente',
-		// Página /proyectos
+		// Botón de la sección de la home hacia la página completa
+		cta: { label: 'Ver productos', href: '/productos/' } satisfies Link,
+		// Alternativa: { label: 'Conoce lo que viene', href: '/productos/' }
+		// Página /productos (los recuadros del Bento Grid viven en content/productos.ts)
 		page: {
-			title: 'Proyectos | JuniorLabs',
-			description: proyectosIntro,
+			title: 'Productos | JuniorLabs',
+			description: productosIntro,
+			gridLabel: 'Productos en camino',
+			note: productosAviso,
+			noteContactWord: 'escríbenos',
 		},
-		// Fichas de producto: para publicar un producto, se agrega un elemento a esta lista.
+		// Ficha de aviso en la home: para publicar un producto, se agrega un elemento a esta lista.
 		items: [
 			{
 				name: '[PENDIENTE: nombre del primer producto]',
 				status: 'Próximamente',
-				description:
-					'Pronto vamos a contar qué estamos construyendo. Si quieres saber cuándo esté listo, escríbenos.',
+				description: productosAviso,
 				contactWord: 'escríbenos',
 			},
-		] satisfies Proyecto[],
+		] satisfies FichaProducto[],
 	},
 
 	// Página 404
