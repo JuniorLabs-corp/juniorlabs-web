@@ -51,7 +51,8 @@ export const site = {
 			{ label: 'Inicio', href: '/' },
 			{ label: 'Qué hacemos', href: '/#que-hacemos' },
 			{ label: 'Quiénes somos', href: '/#quienes-somos' },
-			// La página /productos ya existe; la sección #productos sigue en la home
+			// Dos páginas distintas: el servicio por encargo (/proyectos) y los productos propios (/productos)
+			{ label: 'Proyectos a medida', href: '/proyectos/' },
 			{ label: 'Productos', href: '/productos/' },
 		] satisfies Link[],
 		cta: { label: 'Escríbenos', href: mailto } satisfies Link,
@@ -101,8 +102,59 @@ export const site = {
 		// Origen de la marca, bajo el texto de la empresa. Jorge primero: {JR_} viene de Jorge y Roger.
 		// Los espacios de «J de Jorge» y «R de Roger» son de no separación (U+00A0): nunca se parten
 		brandOrigin: 'La empezamos Jorge y Roger. De ahí viene nuestra marca, {JR_}: J de Jorge, R de Roger.',
-		cta: { label: 'Escríbenos', href: mailto } satisfies Link,
+		// Lleva al brief guiado de /proyectos (antes: { label: 'Escríbenos', href: mailto })
+		cta: { label: 'Cuéntanos tu idea', href: '/proyectos/' } satisfies Link,
 		ctaNote: '¿Tienes una idea o un problema que resolver?',
+	},
+
+	// Desarrollo por encargo: sección de la home (#proyectos) y página /proyectos con el brief guiado
+	proyectos: {
+		id: 'proyectos',
+		// Espacios de no separación (U+00A0): «a la medida» y «de tu negocio» nunca se parten
+		title: 'Software a la medida de tu negocio',
+		// Alternativas:
+		// 'Tu idea, convertida en software que funciona.'
+		// 'Lo que tu negocio necesita y ninguna app resuelve.'
+		intro:
+			'Diseñamos y desarrollamos plataformas web, apps y sistemas internos para negocios que ya no caben en hojas de cálculo ni en apps genéricas. Un mismo equipo, de la primera plática al lanzamiento.',
+		// Cómo trabajamos: en orden, de entender el negocio a que el sistema crezca
+		pillars: [
+			{
+				title: 'Partimos de cómo trabajas',
+				text: 'Antes de escribir código entendemos tu operación y lo que tiene que cambiar. El software se adapta a tu negocio, no al revés.',
+			},
+			{
+				title: 'De la idea al lanzamiento',
+				text: 'Diseño, desarrollo, pruebas y puesta en marcha con el mismo equipo. No tienes que coordinar a varios proveedores.',
+			},
+			{
+				title: 'Avances que puedes probar',
+				text: 'Entregamos por etapas cortas. Usas partes funcionando desde temprano y ajustamos con lo que aprendes.',
+			},
+			{
+				title: 'Hecho para crecer',
+				text: 'Arquitectura pensada para sumar usuarios, módulos e integraciones sin empezar de cero.',
+			},
+		],
+		pillarsLabel: 'Cómo trabajamos',
+		cta: { label: 'Cuéntanos tu proyecto', href: '/proyectos/' } satisfies Link,
+		// Alternativa: { label: 'Platícanos tu idea', href: '/proyectos/' }
+		ctaNote: 'Son cinco preguntas y te respondemos por correo.',
+		page: {
+			title: 'Proyectos a medida | JuniorLabs',
+			description:
+				'Software a la medida en México: plataformas web, apps, sistemas internos y automatizaciones. Cuéntanos tu proyecto en cinco preguntas.',
+			heading: 'Cuéntanos tu proyecto',
+			intro:
+				'Desarrollamos software a la medida: plataformas web, apps, sistemas internos y automatizaciones. Responde el brief y al final se abre tu correo con todo listo para enviarlo.',
+			nextTitle: 'Qué pasa después',
+			next: [
+				{ title: 'Envías el correo', text: 'desde tu cuenta, con tus respuestas ordenadas.' },
+				{ title: 'Lo leemos y te respondemos', text: 'con dudas o una propuesta para platicarlo.' },
+				{ title: 'Definimos juntos', text: 'alcance, tiempos y costo antes de empezar.' },
+			],
+			directNote: '¿Prefieres escribir directo?',
+		},
 	},
 
 	productos: {
