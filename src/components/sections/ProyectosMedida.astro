@@ -1,0 +1,179 @@
+---
+/**
+ * Sección Proyectos a medida de la home (#proyectos): desarrollo por encargo.
+ * Título, intro y botón al brief de /proyectos; abajo, cómo trabajamos como un recorrido en orden
+ * (vertical en móvil y tableta, horizontal en escritorio).
+ */
+import Container from '../layout/Container.astro';
+import { site } from '../../content/site';
+
+const { id, title, intro, pillars, pillarsLabel, cta, ctaNote } = site.proyectos;
+---
+
+<section id={id} aria-labelledby={`${id}-title`} class="proyectos py-section">
+	<Container>
+		<div class="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-end lg:gap-16">
+			<h2 id={`${id}-title`} class="section-title text-balance">{title}</h2>
+
+			<div>
+				<p class="max-w-[54ch] text-lg leading-relaxed text-pretty text-text-secondary sm:text-xl">{intro}</p>
+				<div class="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+					<a href={cta.href} class="proyectos-cta bg-accent text-on-accent">
+						{cta.label}
+						<svg viewBox="0 0 20 20" fill="none" aria-hidden="true" focusable="false">
+							<path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+						</svg>
+					</a>
+					<p class="text-sm text-text-secondary">{ctaNote}</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- role="list": Safari/VoiceOver quita la semántica de lista cuando list-style es none -->
+		<ol role="list" aria-label={pillarsLabel} class="track mt-14 sm:mt-16 lg:mt-20">
+			{
+				pillars.map((pillar) => (
+					<li class="track-item">
+						<span class="track-dot" aria-hidden="true" />
+						<h3 class="text-lg font-semibold text-balance sm:text-xl">{pillar.title}</h3>
+						<p class="mt-2 max-w-[52ch] leading-relaxed text-pretty text-text-secondary">{pillar.text}</p>
+					</li>
+				))
+			}
+		</ol>
+	</Container>
+</section>
+
+<style>
+	@layer components {
+		.proyectos {
+			/* Misma banda translúcida que Qué hacemos: alterna el ritmo de fondos de la home */
+			background: color-mix(in srgb, var(--surface) 86%, transparent);
+			border-block: 1px solid var(--border);
+		}
+
+		/* Botón principal, igual al del hero, con flecha porque lleva a otra página */
+		.proyectos-cta {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+			min-height: 3rem;
+			padding-inline: 1.5rem 1.25rem;
+			border-radius: 9999px;
+			font-weight: 600;
+			transition: transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+		}
+
+		.proyectos-cta svg {
+			width: 1.125rem;
+			height: 1.125rem;
+			transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+		}
+
+		.proyectos-cta:active {
+			transform: scale(0.97);
+		}
+
+		@media (hover: hover) and (pointer: fine) {
+			.proyectos-cta:hover svg {
+				transform: translateX(3px);
+			}
+		}
+
+		/*
+		  Recorrido: un punto por etapa unido por una línea. La línea de la última etapa se desvanece:
+		  el sistema sigue creciendo después del lanzamiento.
+		*/
+		.track {
+			display: grid;
+		}
+
+		.track-item {
+			position: relative;
+			padding-left: 2.25rem;
+			padding-bottom: 2.25rem;
+		}
+
+		.track-item:last-child {
+			padding-bottom: 0;
+		}
+
+		/* Centrado con la primera línea del h3 (text-xl: 1.75rem de alto de línea) */
+		.track-dot {
+			position: absolute;
+			top: 0.5rem;
+			left: 0;
+			width: 0.75rem;
+			height: 0.75rem;
+			border-radius: 9999px;
+			background: var(--accent);
+		}
+
+		.track-item::before {
+			content: '';
+			position: absolute;
+			top: 1.75rem;
+			bottom: 0;
+			left: calc(0.375rem - 0.5px);
+			width: 1px;
+			background: var(--border);
+		}
+
+		.track-item:last-child::before {
+			bottom: auto;
+			height: 3rem;
+			-webkit-mask-image: linear-gradient(to bottom, #000, transparent);
+			mask-image: linear-gradient(to bottom, #000, transparent);
+		}
+
+		@media (width >= 64rem) {
+			.track {
+				grid-template-columns: repeat(4, minmax(0, 1fr));
+				column-gap: 2.5rem;
+			}
+
+			.track-item {
+				padding: 2.5rem 0 0;
+			}
+
+			.track-dot {
+				top: 0;
+			}
+
+			/* Del punto propio hasta medio rem antes del punto de la siguiente columna */
+			.track-item::before {
+				top: calc(0.375rem - 0.5px);
+				bottom: auto;
+				left: 1.25rem;
+				right: -2rem;
+				width: auto;
+				height: 1px;
+			}
+
+			.track-item:last-child::before {
+				right: 0;
+				height: 1px;
+				-webkit-mask-image: linear-gradient(to right, #000 20%, transparent);
+				mask-image: linear-gradient(to right, #000 20%, transparent);
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.proyectos-cta,
+			.proyectos-cta svg {
+				transition: none;
+			}
+
+			.proyectos-cta:active,
+			.proyectos-cta:hover svg {
+				transform: none;
+			}
+		}
+
+		@media (prefers-contrast: more) {
+			.track-item::before {
+				background: var(--text-secondary);
+			}
+		}
+	}
+</style>

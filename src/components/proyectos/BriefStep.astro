@@ -1,0 +1,194 @@
+---
+/**
+ * Un paso del brief de /proyectos: marcador con número a la izquierda y la pregunta a la derecha.
+ * Los pasos se unen con una línea vertical. El script de BriefForm marca data-answered y data-invalid:
+ * respondido, el marcador se llena de acento, el número cambia por una palomita y la línea hacia el
+ * siguiente paso toma el acento; con error, el marcador toma el color de error.
+ */
+interface Props {
+	/** Número visible del paso. */
+	n: number;
+	/** Clave de la pregunta (correo, idea, tipo, etapa, detalles). */
+	step: string;
+}
+
+const { n, step } = Astro.props;
+---
+
+<li class="step" data-step={step} data-answered="false">
+	<span class="marker" aria-hidden="true">
+		<span class="marker-num">{n}</span>
+		<svg class="marker-check" viewBox="0 0 16 16" fill="none" focusable="false">
+			<path
+				d="M3.5 8.5 6.5 11.5 12.5 4.5"
+				pathLength="1"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"></path>
+		</svg>
+	</span>
+	<div class="step-body">
+		<slot />
+	</div>
+</li>
+
+<style>
+	@layer components {
+		.step {
+			--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+			position: relative;
+			display: grid;
+			grid-template-columns: 1.75rem minmax(0, 1fr);
+			column-gap: 0.875rem;
+			padding-bottom: 2.25rem;
+		}
+
+		.step:last-child {
+			padding-bottom: 0;
+		}
+
+		@media (width >= 40rem) {
+			.step {
+				column-gap: 1.25rem;
+				padding-bottom: 2.75rem;
+			}
+		}
+
+		/*
+		  Teléfono: el marcador se queda junto a la pregunta (BriefForm le da sangría a .q-label) y los
+		  campos y opciones usan todo el ancho. Sin columna para el marcador no hay línea entre pasos.
+		*/
+		@media (width < 40rem) {
+			.step {
+				display: block;
+			}
+
+			.marker {
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+
+			.step::before {
+				display: none;
+			}
+		}
+
+		/* Línea hacia el siguiente paso: de debajo del marcador hasta casi el siguiente */
+		.step::before {
+			content: '';
+			position: absolute;
+			top: 2.25rem;
+			bottom: 0.5rem;
+			left: calc(0.875rem - 0.5px);
+			width: 1px;
+			background: var(--border);
+			transition: background-color 400ms ease;
+		}
+
+		.step:last-child::before {
+			display: none;
+		}
+
+		.step[data-answered='true']::before {
+			background: var(--accent);
+		}
+
+		/* Alto igual a la primera línea de la pregunta (1.75rem): quedan alineados */
+		.marker {
+			display: grid;
+			place-items: center;
+			width: 1.75rem;
+			height: 1.75rem;
+			border-radius: 9999px;
+			border: 1px solid var(--field-border, var(--border));
+			background: var(--surface);
+			color: var(--text-secondary);
+			font-family: var(--font-mono);
+			font-size: 0.8125rem;
+			font-weight: 600;
+			font-variant-numeric: tabular-nums;
+			transition:
+				background-color 300ms var(--ease-out),
+				border-color 300ms var(--ease-out),
+				color 300ms var(--ease-out);
+		}
+
+		.marker > * {
+			grid-area: 1 / 1;
+		}
+
+		.marker-num {
+			transition:
+				opacity 150ms ease,
+				transform 300ms var(--ease-out);
+		}
+
+		.marker-check {
+			width: 0.875rem;
+			height: 0.875rem;
+			opacity: 0;
+			transition: opacity 150ms ease;
+		}
+
+		/* La palomita se dibuja (pathLength="1": el trazo completo mide 1) */
+		.marker-check path {
+			stroke-dasharray: 1;
+			stroke-dashoffset: 1;
+			transition: stroke-dashoffset 350ms var(--ease-out) 60ms;
+		}
+
+		.step[data-invalid='true'] .marker {
+			border-color: var(--danger);
+			color: var(--danger);
+		}
+
+		.step[data-answered='true'] .marker {
+			border-color: var(--accent);
+			background: var(--accent);
+			color: var(--on-accent);
+			animation: marker-pop 400ms var(--ease-out);
+		}
+
+		.step[data-answered='true'] .marker-num {
+			opacity: 0;
+			transform: scale(0.6);
+		}
+
+		.step[data-answered='true'] .marker-check {
+			opacity: 1;
+		}
+
+		.step[data-answered='true'] .marker-check path {
+			stroke-dashoffset: 0;
+		}
+
+		@keyframes marker-pop {
+			from {
+				transform: scale(0.86);
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.step::before,
+			.marker,
+			.marker-num,
+			.marker-check,
+			.marker-check path {
+				transition: none;
+			}
+
+			.step[data-answered='true'] .marker {
+				animation: none;
+			}
+		}
+
+		@media (prefers-contrast: more) {
+			.step::before {
+				background: var(--text-secondary);
+			}
+		}
+	}
+</style>

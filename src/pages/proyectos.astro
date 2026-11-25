@@ -1,0 +1,109 @@
+---
+/**
+ * /proyectos: desarrollo de software a la medida (por encargo).
+ * A la izquierda qué hacemos y qué pasa después; a la derecha el brief guiado, que termina en un
+ * borrador de correo para contacto@juniorlabs.com.mx. Los productos propios viven en /productos.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/layout/Container.astro';
+import BriefForm from '../components/proyectos/BriefForm.astro';
+import { site } from '../content/site';
+
+const { id, page } = site.proyectos;
+const { email, mailto } = site.contact;
+const titleId = `${id}-title`;
+---
+
+<BaseLayout title={page.title} description={page.description}>
+	<section aria-labelledby={titleId} class="py-section">
+		<Container class="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+			<div class="intro-col">
+				<h1 id={titleId} class="section-title text-balance">{page.heading}</h1>
+				<p class="mt-4 max-w-[38ch] text-lg leading-relaxed text-pretty text-text-secondary">{page.intro}</p>
+
+				<div class="mt-10 border-t border-border pt-8">
+					<h2 class="text-lg font-semibold sm:text-xl">{page.nextTitle}</h2>
+					<!-- role="list": Safari/VoiceOver quita la semántica de lista cuando list-style es none -->
+					<ol role="list" class="next mt-4">
+						{
+							page.next.map((item) => (
+								<li class="next-item">
+									<strong class="font-semibold text-text">{item.title}</strong> {item.text}
+								</li>
+							))
+						}
+					</ol>
+				</div>
+
+				<p class="mt-8 leading-relaxed text-text-secondary">
+					{page.directNote}{' '}
+					<a href={mailto} class="contact-link">{email}</a>
+				</p>
+			</div>
+
+			<BriefForm labelledby={titleId} />
+		</Container>
+	</section>
+</BaseLayout>
+
+<style>
+	@layer components {
+		/* Acompaña al formulario en escritorio, solo si cabe completa en la pantalla */
+		@media (width >= 64rem) and (height >= 48rem) {
+			.intro-col {
+				position: sticky;
+				top: 7rem;
+				align-self: start;
+			}
+		}
+
+		.next {
+			display: grid;
+			gap: 0.875rem;
+			counter-reset: next;
+		}
+
+		/* Pasos en orden: el número es parte de la información (qué sigue y en qué orden) */
+		.next-item {
+			position: relative;
+			padding-left: 2.25rem;
+			max-width: 40ch;
+			line-height: 1.6;
+			color: var(--text-secondary);
+			text-wrap: pretty;
+			counter-increment: next;
+		}
+
+		.next-item::before {
+			content: counter(next);
+			position: absolute;
+			top: 0.0625rem;
+			left: 0;
+			display: grid;
+			place-items: center;
+			width: 1.5rem;
+			height: 1.5rem;
+			border-radius: 9999px;
+			border: 1px solid var(--border);
+			font-family: var(--font-mono);
+			font-size: 0.75rem;
+			font-weight: 600;
+			color: var(--text);
+		}
+
+		/* Mismo enlace al correo que /productos: texto en --text, acento en el subrayado */
+		.contact-link {
+			color: var(--text);
+			font-weight: 600;
+			text-decoration: underline;
+			text-decoration-color: var(--accent);
+			text-underline-offset: 0.2em;
+			text-decoration-thickness: 1px;
+			overflow-wrap: anywhere;
+		}
+
+		.contact-link:hover {
+			text-decoration-thickness: 2px;
+		}
+	}
+</style>

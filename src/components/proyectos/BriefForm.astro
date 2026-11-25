@@ -1,0 +1,1182 @@
+---
+/**
+ * Brief guiado de /proyectos: cinco preguntas que terminan en un borrador de correo (mailto)
+ * para contacto@juniorlabs.com.mx. Solo el correo y la idea son obligatorios.
+ *
+ * - Con JS: validación con mensajes propios, el correo se arma con todas las respuestas y, de respaldo,
+ *   un aviso con «Copiar resumen» por si el equipo no tiene app de correo configurada.
+ * - Sin JS: validación nativa y el navegador envía el formulario como mailto en texto plano.
+ * Preguntas y textos: content/brief.ts.
+ */
+import BriefStep from './BriefStep.astro';
+import { brief } from '../../content/brief';
+import { site } from '../../content/site';
+
+interface Props {
+	/** id del título que nombra al formulario (el h1 de la página). */
+	labelledby: string;
+	class?: string;
+}
+
+const { labelledby, class: className } = Astro.props;
+const { email, mailto } = site.contact;
+const { questions: q, optional, submit, status } = brief;
+const tipoOptions = [...q.tipo.options, q.tipo.unsure];
+---
+
+<form
+	class:list={['brief', className]}
+	action={mailto}
+	method="post"
+	enctype="text/plain"
+	aria-labelledby={labelledby}
+	data-brief
+	data-to={email}
+>
+	<p class="brief-intro">{brief.intro}</p>
+
+	<!-- role="list": Safari/VoiceOver quita la semántica de lista cuando list-style es none -->
+	<ol role="list">
+		<BriefStep n={1} step="correo">
+			<label for="brief-correo" class="q-label">{q.correo.label}</label>
+			<p id="brief-correo-hint" class="q-hint">{q.correo.hint}</p>
+			<!-- data-valid (lo pone el script): palomita dentro del campo en cuanto el correo está bien -->
+			<div class="field-wrap" data-field-wrap>
+				<input
+					id="brief-correo"
+					name="correo"
+					type="email"
+					class="field field--status"
+					required
+					autocomplete="email"
+					inputmode="email"
+					autocapitalize="off"
+					spellcheck="false"
+					maxlength="254"
+					placeholder={q.correo.placeholder}
+					aria-describedby="brief-correo-hint brief-correo-error"
+				/>
+				<span class="field-valid" aria-hidden="true">
+					<svg viewBox="0 0 16 16" fill="none" focusable="false">
+						<path d="M3.5 8.5 6.5 11.5 12.5 4.5" pathLength="1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+					</svg>
+				</span>
+			</div>
+			<!-- Vacío hasta que hay error (un aria-describedby a un elemento oculto se seguiría leyendo) -->
+			<p id="brief-correo-error" class="q-error" data-error="correo"></p>
+			<!-- Error de dedo en el dominio: «gmial.com» → un toque y queda «gmail.com». No bloquea el envío -->
+			<p class="q-suggest" data-suggest hidden>
+				{q.correo.suggestPrefix}{' '}<button type="button" class="suggest-btn" data-suggest-apply></button>?
+			</p>
+		</BriefStep>
+
+		<BriefStep n={2} step="idea">
+			<label for="brief-idea" class="q-label">{q.idea.label}</label>
+			<p id="brief-idea-hint" class="q-hint">{q.idea.hint}</p>
+			<textarea
+				id="brief-idea"
+				name="idea"
+				class="field field--area"
+				rows="5"
+				required
+				maxlength="2000"
+				placeholder={q.idea.placeholder}
+				aria-describedby="brief-idea-hint brief-idea-error"></textarea>
+			<p id="brief-idea-error" class="q-error" data-error="idea"></p>
+		</BriefStep>
+
+		<BriefStep n={3} step="tipo">
+			<fieldset class="q-group" aria-describedby="brief-tipo-hint">
+				<legend class="q-label">
+					{q.tipo.label}
+					<span class="q-optional">{optional}</span>
+				</legend>
+				<p id="brief-tipo-hint" class="q-hint">{q.tipo.hint}</p>
+				<div class="chips">
+					{
+						tipoOptions.map((option) => (
+							<label class="chip">
+								<input
+									type="checkbox"
+									name="tipo"
+									value={option}
+									class="chip-input"
+									data-unsure={option === q.tipo.unsure ? '' : undefined}
+								/>
+								<span class="chip-box" aria-hidden="true">
+									<svg viewBox="0 0 12 12" fill="none" focusable="false">
+										<path d="M2.5 6.25 5 8.75 9.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+									</svg>
+								</span>
+								{option}
+							</label>
+						))
+					}
+				</div>
+			</fieldset>
+			<label for="brief-tipo-detalle" class="q-sublabel">{q.tipo.detailLabel}</label>
+			<input
+				id="brief-tipo-detalle"
+				name="tipo_detalle"
+				type="text"
+				class="field"
+				maxlength="200"
+				autocomplete="off"
+				placeholder={q.tipo.detailPlaceholder}
+			/>
+		</BriefStep>
+
+		<BriefStep n={4} step="etapa">
+			<fieldset class="q-group" aria-describedby="brief-etapa-hint">
+				<legend class="q-label">
+					{q.etapa.label}
+					<span class="q-optional">{optional}</span>
+				</legend>
+				<p id="brief-etapa-hint" class="q-hint">{q.etapa.hint}</p>
+				<div class="chips">
+					{
+						q.etapa.options.map((option) => (
+							<label class="chip">
+								<input type="radio" name="etapa" value={option} class="chip-input" />
+								<span class="chip-box chip-box--radio" aria-hidden="true" />
+								{option}
+							</label>
+						))
+					}
+				</div>
+			</fieldset>
+			<label for="brief-plazo" class="q-sublabel">{q.etapa.plazoLabel}</label>
+			<input
+				id="brief-plazo"
+				name="plazo"
+				type="text"
+				class="field"
+				maxlength="120"
+				autocomplete="off"
+				placeholder={q.etapa.plazoPlaceholder}
+			/>
+		</BriefStep>
+
+		<BriefStep n={5} step="detalles">
+			<label for="brief-detalles" class="q-label">
+				{q.detalles.label}
+				<span class="q-optional">{optional}</span>
+			</label>
+			<p id="brief-detalles-hint" class="q-hint">{q.detalles.hint}</p>
+			<textarea
+				id="brief-detalles"
+				name="detalles"
+				class="field field--area"
+				rows="4"
+				maxlength="1500"
+				placeholder={q.detalles.placeholder}
+				aria-describedby="brief-detalles-hint"></textarea>
+		</BriefStep>
+	</ol>
+
+	<div class="brief-submit">
+		<button type="submit" class="btn-primary" aria-describedby="brief-submit-note">
+			{submit.label}
+			<svg viewBox="0 0 20 20" fill="none" aria-hidden="true" focusable="false">
+				<rect x="2.75" y="4.25" width="14.5" height="11.5" rx="2.25" stroke="currentColor" stroke-width="1.6" />
+				<path d="m3.5 5.5 6.5 5 6.5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+			</svg>
+		</button>
+		<p id="brief-submit-note" class="submit-note">{submit.note}</p>
+	</div>
+
+	<!-- Aparece tras preparar el correo: confirma y ofrece el respaldo para pegarlo a mano -->
+	<div class="status" data-status hidden>
+		<div class="status-head">
+			<span class="status-icon" aria-hidden="true">
+				<svg viewBox="0 0 16 16" fill="none" focusable="false">
+					<path d="M3.5 8.5 6.5 11.5 12.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+				</svg>
+			</span>
+			<!-- tabindex="-1": recibe el foco al aparecer para que el lector de pantalla lo anuncie -->
+			<h2 class="status-title" tabindex="-1" data-status-title>{status.title}</h2>
+		</div>
+		<p class="status-text">{status.text}</p>
+		<p class="status-long" data-status-long hidden>{status.long}</p>
+
+		<div class="status-fallback">
+			<p>
+				{status.fallback}{' '}
+				<a href={mailto} class="contact-link">{email}</a>.
+			</p>
+			<div class="status-actions">
+				<button
+					type="button"
+					class="btn-secondary"
+					data-copy="summary"
+					data-label={status.copySummary}
+					data-done={status.copySummaryDone}
+				>
+					<svg class="icon-copy" viewBox="0 0 20 20" fill="none" aria-hidden="true" focusable="false">
+						<rect x="6.75" y="6.75" width="10" height="10.5" rx="2" stroke="currentColor" stroke-width="1.6" />
+						<path d="M13.25 6.5V4.75a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v6.75a2 2 0 0 0 2 2h1.25" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+					</svg>
+					<svg class="icon-done" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+						<path d="M3.5 8.5 6.5 11.5 12.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+					<span data-copy-label>{status.copySummary}</span>
+				</button>
+				<button
+					type="button"
+					class="btn-secondary"
+					data-copy="address"
+					data-label={status.copyAddress}
+					data-done={status.copyAddressDone}
+				>
+					<svg class="icon-copy" viewBox="0 0 20 20" fill="none" aria-hidden="true" focusable="false">
+						<rect x="6.75" y="6.75" width="10" height="10.5" rx="2" stroke="currentColor" stroke-width="1.6" />
+						<path d="M13.25 6.5V4.75a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v6.75a2 2 0 0 0 2 2h1.25" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+					</svg>
+					<svg class="icon-done" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+						<path d="M3.5 8.5 6.5 11.5 12.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+					<span data-copy-label>{status.copyAddress}</span>
+				</button>
+			</div>
+
+			<!-- Si el navegador no deja copiar: el resumen queda a la vista, seleccionado, para copiarlo a mano -->
+			<div class="manual" data-manual hidden>
+				<p class="manual-note">{status.copyFailed}</p>
+				<textarea class="field field--manual" rows="10" readonly aria-label={status.manualLabel} data-manual-text></textarea>
+			</div>
+		</div>
+	</div>
+
+	<p class="sr-only" aria-live="polite" data-live></p>
+</form>
+
+<script>
+	import {
+		brief,
+		buildEmail,
+		emailIssue,
+		isEmail,
+		mailtoHref,
+		suggestEmail,
+		summaryText,
+		MAILTO_SAFE_LENGTH,
+		type BriefAnswers,
+	} from '../../content/brief';
+
+	type RequiredKey = 'correo' | 'idea';
+	type StepKey = RequiredKey | 'tipo' | 'etapa' | 'detalles';
+
+	const root = document.querySelector<HTMLFormElement>('[data-brief]');
+	if (root) setupBrief(root);
+
+	function setupBrief(form: HTMLFormElement) {
+		// Con JS los mensajes son propios; sin JS quedan la validación nativa y el envío mailto del navegador
+		form.noValidate = true;
+
+		const to = form.dataset.to ?? '';
+		const q = brief.questions;
+		const s = brief.status;
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+		const read = (): BriefAnswers => {
+			const data = new FormData(form);
+			const get = (name: string) => {
+				const value = data.get(name);
+				return typeof value === 'string' ? value.trim() : '';
+			};
+			return {
+				correo: get('correo'),
+				idea: get('idea'),
+				tipos: data.getAll('tipo').filter((v): v is string => typeof v === 'string'),
+				tipoDetalle: get('tipo_detalle'),
+				etapa: get('etapa'),
+				plazo: get('plazo'),
+				detalles: get('detalles'),
+			};
+		};
+
+		// Paso respondido: el marcador se llena y la línea hacia el siguiente toma el acento
+		const isAnswered: Record<StepKey, (a: BriefAnswers) => boolean> = {
+			correo: (a) => isEmail(a.correo),
+			idea: (a) => a.idea.length > 0,
+			tipo: (a) => a.tipos.length > 0 || a.tipoDetalle.length > 0,
+			etapa: (a) => a.etapa.length > 0 || a.plazo.length > 0,
+			detalles: (a) => a.detalles.length > 0,
+		};
+		const steps = [...form.querySelectorAll<HTMLElement>('[data-step]')];
+		const syncSteps = () => {
+			const answers = read();
+			for (const step of steps) {
+				const key = step.dataset.step as StepKey;
+				step.dataset.answered = String(isAnswered[key](answers));
+			}
+		};
+
+		// Aviso para lector de pantalla. Se vacía antes de escribir para que repita el mismo mensaje
+		const live = form.querySelector<HTMLElement>('[data-live]');
+		const announce = (message: string) => {
+			if (!live) return;
+			live.textContent = '';
+			window.setTimeout(() => (live.textContent = message), 60);
+		};
+
+		// Validación: solo el correo y la idea son obligatorios
+		const rules: Record<RequiredKey, (value: string) => string> = {
+			correo: emailIssue,
+			idea: (v) => (v ? '' : q.idea.errors.empty),
+		};
+		const requiredKeys = Object.keys(rules) as RequiredKey[];
+		const fieldOf = (key: RequiredKey) => form.elements.namedItem(key) as HTMLInputElement | HTMLTextAreaElement;
+		let attempted = false;
+
+		const showError = (key: RequiredKey, message: string) => {
+			const field = fieldOf(key);
+			field.setAttribute('aria-invalid', String(Boolean(message)));
+			const error = form.querySelector<HTMLElement>(`[data-error="${key}"]`);
+			if (error) error.textContent = message;
+			const step = form.querySelector<HTMLElement>(`[data-step="${key}"]`);
+			if (step) step.dataset.invalid = String(Boolean(message));
+		};
+
+		const validate = (key: RequiredKey) => {
+			const message = rules[key](fieldOf(key).value.trim());
+			showError(key, message);
+			return message === '';
+		};
+
+		// Idea: el error se quita en cuanto escribe algo; vuelve a revisarse al salir del campo
+		const idea = fieldOf('idea');
+		idea.addEventListener('input', () => {
+			if (idea.getAttribute('aria-invalid') === 'true' && idea.value.trim()) showError('idea', '');
+		});
+		idea.addEventListener('blur', () => {
+			if (idea.value.trim() || attempted) validate('idea');
+		});
+
+		/*
+		  Correo, verificado en vivo:
+		  - Bien escrito: palomita dentro del campo al instante.
+		  - Algo falta: el mensaje concreto aparece cuando deja de teclear (no a media palabra).
+		  - Error de dedo en el dominio: sugerencia que se aplica con un toque.
+		  Lo que deja de aplicar se quita al instante; lo nuevo espera la pausa (o sale al salir del campo).
+		*/
+		const correo = fieldOf('correo');
+		const correoWrap = form.querySelector<HTMLElement>('[data-field-wrap]');
+		const correoError = form.querySelector<HTMLElement>('[data-error="correo"]');
+		const suggestBox = form.querySelector<HTMLElement>('[data-suggest]');
+		const suggestButton = form.querySelector<HTMLButtonElement>('[data-suggest-apply]');
+		const PAUSE_MS = 800;
+		let correoTimer: number | undefined;
+		let correoWasValid = false;
+		let lastAnnounced = '';
+
+		const shownSuggestion = () => (suggestBox && !suggestBox.hidden ? (suggestButton?.textContent ?? '') : '');
+
+		const showSuggestion = (email: string | null) => {
+			if (!suggestBox || !suggestButton) return;
+			suggestBox.hidden = !email;
+			suggestButton.textContent = email ?? '';
+			if (email) suggestButton.setAttribute('aria-label', `${q.correo.suggestAction} ${email}`);
+		};
+
+		const checkCorreo = (immediate: boolean) => {
+			window.clearTimeout(correoTimer);
+			const value = correo.value.trim();
+			const issue = emailIssue(value);
+			const suggestion = suggestEmail(value);
+
+			// Palomita solo si está bien y no parece un error de dedo («gmail.co» es válido, pero sospechoso)
+			const valid = issue === '' && !suggestion;
+			correoWrap?.toggleAttribute('data-valid', valid);
+			if (valid && !correoWasValid && !immediate) announce(q.correo.valid);
+			correoWasValid = valid;
+
+			if (correoError?.textContent && correoError.textContent !== issue) showError('correo', '');
+			if (shownSuggestion() && shownSuggestion() !== suggestion) showSuggestion(null);
+
+			const reveal = () => {
+				// Vacío solo cuenta como error después del primer intento de enviar
+				const message = value || attempted ? issue : '';
+				showError('correo', message);
+				showSuggestion(suggestion);
+				// Al teclear, el lector de pantalla oye el aviso nuevo; al salir del campo ya lo describe aria-describedby
+				const notice = suggestion ? `${q.correo.suggestPrefix} ${suggestion}?` : message;
+				if (!immediate && notice && notice !== lastAnnounced) announce(notice);
+				lastAnnounced = notice;
+			};
+
+			if (immediate) reveal();
+			else correoTimer = window.setTimeout(reveal, PAUSE_MS);
+		};
+
+		correo.addEventListener('input', () => checkCorreo(false));
+		correo.addEventListener('blur', () => {
+			if (correo.value.trim() || attempted) checkCorreo(true);
+		});
+
+		suggestButton?.addEventListener('click', () => {
+			correo.value = suggestButton.textContent ?? correo.value;
+			checkCorreo(true);
+			syncSteps();
+			announce(q.correo.valid);
+			correo.focus();
+		});
+
+		// «Aún no lo sé» excluye a las demás opciones de tipo de solución (y al revés)
+		const tipoInputs = [...form.querySelectorAll<HTMLInputElement>('input[name="tipo"]')];
+		const unsure = tipoInputs.find((input) => input.hasAttribute('data-unsure'));
+
+		form.addEventListener('change', (event) => {
+			const target = event.target;
+			if (unsure && target instanceof HTMLInputElement && target.name === 'tipo' && target.checked) {
+				for (const input of tipoInputs) {
+					if (input !== target && (target === unsure || input === unsure)) input.checked = false;
+				}
+			}
+			syncSteps();
+		});
+		form.addEventListener('input', syncSteps);
+		// Al volver con «atrás» el navegador restaura lo escrito: marcadores y correo lo reflejan
+		window.addEventListener('pageshow', () => {
+			syncSteps();
+			if (correo.value.trim()) checkCorreo(true);
+		});
+		syncSteps();
+
+		// Envío: arma el correo y abre la app de correo; el aviso queda como respaldo
+		const status = form.querySelector<HTMLElement>('[data-status]');
+		const statusTitle = form.querySelector<HTMLElement>('[data-status-title]');
+		const statusLong = form.querySelector<HTMLElement>('[data-status-long]');
+		const manual = form.querySelector<HTMLElement>('[data-manual]');
+		const manualText = form.querySelector<HTMLTextAreaElement>('[data-manual-text]');
+
+		form.addEventListener('submit', (event) => {
+			event.preventDefault();
+			attempted = true;
+			// Cancela la pausa pendiente del correo y muestra su estado ya (palomita, error o sugerencia)
+			checkCorreo(true);
+
+			const invalid = requiredKeys.filter((key) => !validate(key));
+			if (invalid.length > 0) {
+				if (status) status.hidden = true;
+				fieldOf(invalid[0]).focus();
+				return;
+			}
+
+			const href = mailtoHref(to, buildEmail(read()));
+			if (status) {
+				if (statusLong) statusLong.hidden = href.length <= MAILTO_SAFE_LENGTH;
+				if (manual) manual.hidden = true;
+				status.hidden = false;
+				statusTitle?.focus({ preventScroll: true });
+				status.scrollIntoView({ block: 'nearest', behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+			}
+			window.location.href = href;
+		});
+
+		// Copiar: Clipboard API y, si no está o no hay permiso, el método antiguo con un textarea temporal
+		const copyText = async (value: string) => {
+			try {
+				await navigator.clipboard.writeText(value);
+				return true;
+			} catch {
+				const area = document.createElement('textarea');
+				area.value = value;
+				area.setAttribute('readonly', '');
+				area.style.position = 'fixed';
+				area.style.opacity = '0';
+				document.body.append(area);
+				area.select();
+				let ok = false;
+				try {
+					ok = document.execCommand('copy');
+				} catch {
+					ok = false;
+				}
+				area.remove();
+				return ok;
+			}
+		};
+
+		for (const button of form.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
+			const label = button.querySelector<HTMLElement>('[data-copy-label]');
+			let timer: number | undefined;
+
+			button.addEventListener('click', async () => {
+				const isAddress = button.dataset.copy === 'address';
+				// Se arma con lo que hay en el formulario ahora (por si editó después de preparar el correo)
+				const value = isAddress ? to : summaryText(to, buildEmail(read()));
+				const ok = await copyText(value);
+
+				if (!ok) {
+					if (manual && manualText) {
+						manualText.value = value;
+						manual.hidden = false;
+						manualText.focus();
+						manualText.select();
+					}
+					announce(s.copyFailed);
+					return;
+				}
+
+				button.dataset.copied = 'true';
+				if (label) label.textContent = button.dataset.done ?? '';
+				announce(isAddress ? s.announceAddress : s.announceSummary);
+				window.clearTimeout(timer);
+				timer = window.setTimeout(() => {
+					button.dataset.copied = 'false';
+					if (label) label.textContent = button.dataset.label ?? '';
+				}, 2500);
+			});
+		}
+	}
+</script>
+
+<style>
+	@layer components {
+		.brief {
+			--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+			--field-bg: var(--background);
+			/* Borde de controles: 3:1 contra la superficie (WCAG 1.4.11), más firme que los bordes decorativos */
+			--field-border: color-mix(in srgb, var(--text-secondary) 55%, var(--border));
+
+			padding: 1.25rem;
+			border-radius: 1.25rem;
+			background: var(--surface);
+			border: 1px solid var(--border);
+			box-shadow:
+				0 1px 2px rgb(8 18 40 / 0.06),
+				0 28px 56px -36px rgb(8 18 40 / 0.35);
+		}
+
+		@media (width >= 40rem) {
+			.brief {
+				padding: 2rem;
+			}
+		}
+
+		@media (width >= 64rem) {
+			.brief {
+				padding: 2.5rem;
+			}
+		}
+
+		.brief-intro {
+			margin-bottom: 2rem;
+			padding-bottom: 1.5rem;
+			border-bottom: 1px solid var(--border);
+			font-size: 0.9375rem;
+			line-height: 1.5;
+			color: var(--text-secondary);
+		}
+
+		/* Pregunta: un paso debajo del título de la página */
+		.q-label {
+			display: block;
+			padding: 0;
+			font-size: 1.125rem;
+			line-height: 1.75rem;
+			font-weight: 600;
+			color: var(--text);
+			text-wrap: balance;
+		}
+
+		@media (width >= 40rem) {
+			.q-label {
+				font-size: 1.25rem;
+			}
+		}
+
+		/* Teléfono: sangría para el marcador del paso (BriefStep), que va junto a la pregunta */
+		@media (width < 40rem) {
+			.q-label {
+				padding-left: 2.5rem;
+			}
+		}
+
+		.q-optional {
+			display: inline-flex;
+			align-items: center;
+			margin-left: 0.375rem;
+			padding: 0 0.5rem;
+			border: 1px solid var(--border);
+			border-radius: 9999px;
+			font-family: var(--font-mono);
+			font-size: 0.75rem;
+			line-height: 1.375rem;
+			font-weight: 600;
+			color: var(--text-secondary);
+			vertical-align: 0.125em;
+			white-space: nowrap;
+		}
+
+		.q-hint {
+			margin-top: 0.25rem;
+			max-width: 60ch;
+			font-size: 0.9375rem;
+			line-height: 1.5;
+			color: var(--text-secondary);
+			text-wrap: pretty;
+		}
+
+		.q-sublabel {
+			display: block;
+			margin-top: 1.5rem;
+			font-size: 0.9375rem;
+			font-weight: 600;
+			color: var(--text);
+		}
+
+		.q-group {
+			min-width: 0;
+			margin: 0;
+			padding: 0;
+			border: 0;
+		}
+
+		/* Campos de texto */
+		.field {
+			display: block;
+			width: 100%;
+			min-height: 3rem;
+			margin-top: 0.875rem;
+			padding: 0.6875rem 1rem;
+			border-radius: 0.75rem;
+			border: 1px solid var(--field-border);
+			background: var(--field-bg);
+			color: var(--text);
+			font: inherit;
+			/* 16px: iOS no hace zoom al enfocar */
+			font-size: 1rem;
+			line-height: 1.5;
+			caret-color: var(--accent);
+			transition:
+				border-color 150ms ease,
+				background-color 150ms ease;
+		}
+
+		.q-sublabel + .field {
+			margin-top: 0.5rem;
+		}
+
+		/* 90 % del secundario: sigue en 5:1 (AA) y se distingue de lo que escribe la persona */
+		.field::placeholder {
+			color: color-mix(in srgb, var(--text-secondary) 90%, var(--field-bg));
+			opacity: 1;
+		}
+
+		.field:focus-visible {
+			border-color: var(--accent);
+			outline-offset: 2px;
+		}
+
+		.field[aria-invalid='true'] {
+			border-color: var(--danger);
+		}
+
+		.field[aria-invalid='true']:focus-visible {
+			outline-color: var(--danger);
+		}
+
+		/* Crece con el texto donde se puede (field-sizing); si no, se estira a mano */
+		.field--area {
+			min-height: 8.5rem;
+			max-height: 24rem;
+			resize: vertical;
+			field-sizing: content;
+		}
+
+		.field--manual {
+			min-height: 12rem;
+			font-family: var(--font-mono);
+			font-size: 0.8125rem;
+			line-height: 1.6;
+			resize: vertical;
+		}
+
+		@media (hover: hover) and (pointer: fine) {
+			.field:hover:not(:focus-visible, [aria-invalid='true']) {
+				border-color: var(--text-secondary);
+			}
+		}
+
+		/* Correo: palomita dentro del campo cuando está bien escrito (data-valid lo pone el script) */
+		.field-wrap {
+			position: relative;
+			margin-top: 0.875rem;
+		}
+
+		.field-wrap > .field {
+			margin-top: 0;
+		}
+
+		.field--status {
+			padding-right: 3rem;
+		}
+
+		.field-valid {
+			position: absolute;
+			top: 50%;
+			right: 0.875rem;
+			display: grid;
+			place-items: center;
+			width: 1.375rem;
+			height: 1.375rem;
+			border-radius: 9999px;
+			background: var(--accent);
+			color: var(--on-accent);
+			pointer-events: none;
+			opacity: 0;
+			transform: translateY(-50%) scale(0.6);
+			transition:
+				opacity 150ms ease,
+				transform 250ms var(--ease-out);
+		}
+
+		.field-valid svg {
+			width: 0.875rem;
+			height: 0.875rem;
+		}
+
+		/* La palomita se dibuja al aparecer, como en los marcadores de paso */
+		.field-valid path {
+			stroke-dasharray: 1;
+			stroke-dashoffset: 1;
+			transition: stroke-dashoffset 300ms var(--ease-out) 60ms;
+		}
+
+		.field-wrap[data-valid] .field-valid {
+			opacity: 1;
+			transform: translateY(-50%) scale(1);
+		}
+
+		.field-wrap[data-valid] .field-valid path {
+			stroke-dashoffset: 0;
+		}
+
+		.field-wrap[data-valid] .field:not(:focus-visible) {
+			border-color: color-mix(in srgb, var(--accent) 65%, var(--field-border));
+		}
+
+		/* Sugerencia ante un error de dedo: el correo corregido es un botón con aspecto de enlace */
+		.q-suggest {
+			margin-top: 0.625rem;
+			font-size: 0.9375rem;
+			line-height: 1.5;
+			color: var(--text-secondary);
+		}
+
+		.suggest-btn {
+			padding: 0;
+			font: inherit;
+			font-weight: 600;
+			color: var(--text);
+			text-decoration: underline;
+			text-decoration-color: var(--accent);
+			text-underline-offset: 0.2em;
+			text-decoration-thickness: 1px;
+			overflow-wrap: anywhere;
+			cursor: pointer;
+		}
+
+		.suggest-btn:hover {
+			text-decoration-thickness: 2px;
+		}
+
+		/* Error: icono + texto, no solo color */
+		.q-error {
+			display: flex;
+			align-items: flex-start;
+			gap: 0.5rem;
+			margin-top: 0.625rem;
+			font-size: 0.9375rem;
+			line-height: 1.4;
+			font-weight: 500;
+			color: var(--danger);
+		}
+
+		.q-error:empty {
+			display: none;
+		}
+
+		.q-error::before {
+			content: '';
+			flex: none;
+			width: 1rem;
+			height: 1rem;
+			margin-top: 0.125rem;
+			background: currentColor;
+			-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M8 1.25a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM8 4.5a.8.8 0 0 1 .8.8v3.2a.8.8 0 0 1-1.6 0V5.3a.8.8 0 0 1 .8-.8Zm0 7.6a.95.95 0 1 0 0-1.9.95.95 0 0 0 0 1.9Z'/%3E%3C/svg%3E")
+				center / contain no-repeat;
+			mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M8 1.25a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM8 4.5a.8.8 0 0 1 .8.8v3.2a.8.8 0 0 1-1.6 0V5.3a.8.8 0 0 1 .8-.8Zm0 7.6a.95.95 0 1 0 0-1.9.95.95 0 0 0 0 1.9Z'/%3E%3C/svg%3E")
+				center / contain no-repeat;
+		}
+
+		/* Opciones rápidas: casilla (varias) o círculo (una), para que se note cuál es cuál */
+		.chips {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+			margin-top: 0.875rem;
+		}
+
+		.chip {
+			position: relative;
+			display: inline-flex;
+			align-items: center;
+			gap: 0.625rem;
+			min-height: 2.75rem;
+			padding: 0.5rem 1rem 0.5rem 0.875rem;
+			border-radius: 9999px;
+			border: 1px solid var(--field-border);
+			background: var(--field-bg);
+			color: var(--text);
+			font-size: 0.9375rem;
+			font-weight: 500;
+			line-height: 1.25;
+			cursor: pointer;
+			user-select: none;
+			-webkit-tap-highlight-color: transparent;
+			transition:
+				border-color 150ms ease,
+				background-color 150ms ease,
+				transform 150ms var(--ease-out);
+		}
+
+		/* Teléfono: un poco más compactas para que quepan dos por renglón */
+		@media (width < 40rem) {
+			.chip {
+				gap: 0.5rem;
+				padding: 0.5rem 0.875rem 0.5rem 0.75rem;
+			}
+		}
+
+		/* El input real cubre toda la opción: área de toque completa y foco nativo */
+		.chip-input {
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			border-radius: inherit;
+			opacity: 0;
+			cursor: pointer;
+			appearance: none;
+		}
+
+		.chip:has(.chip-input:focus-visible) {
+			outline: 2px solid var(--accent);
+			outline-offset: 2px;
+		}
+
+		.chip:has(.chip-input:checked) {
+			border-color: var(--accent);
+			background: color-mix(in srgb, var(--accent) 12%, var(--field-bg));
+		}
+
+		.chip:active {
+			transform: scale(0.97);
+		}
+
+		@media (hover: hover) and (pointer: fine) {
+			.chip:hover:not(:has(.chip-input:checked)) {
+				border-color: var(--text-secondary);
+			}
+		}
+
+		.chip-box {
+			display: grid;
+			place-items: center;
+			flex: none;
+			width: 1.125rem;
+			height: 1.125rem;
+			border-radius: 0.3125rem;
+			border: 1.5px solid var(--field-border);
+			color: var(--on-accent);
+			transition:
+				background-color 150ms ease,
+				border-color 150ms ease;
+		}
+
+		.chip-box svg {
+			width: 0.75rem;
+			height: 0.75rem;
+			opacity: 0;
+			transform: scale(0.6);
+			transition:
+				opacity 150ms ease,
+				transform 200ms var(--ease-out);
+		}
+
+		.chip-box--radio {
+			border-radius: 9999px;
+		}
+
+		.chip-box--radio::after {
+			content: '';
+			width: 0.4375rem;
+			height: 0.4375rem;
+			border-radius: 9999px;
+			background: var(--on-accent);
+			transform: scale(0);
+			transition: transform 200ms var(--ease-out);
+		}
+
+		.chip:has(.chip-input:checked) .chip-box {
+			border-color: var(--accent);
+			background: var(--accent);
+		}
+
+		.chip:has(.chip-input:checked) .chip-box svg {
+			opacity: 1;
+			transform: scale(1);
+		}
+
+		.chip:has(.chip-input:checked) .chip-box--radio::after {
+			transform: scale(1);
+		}
+
+		/* Envío */
+		.brief-submit {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 0.875rem 1.25rem;
+			margin-top: 2.5rem;
+			padding-top: 2rem;
+			border-top: 1px solid var(--border);
+		}
+
+		.submit-note {
+			flex: 1 1 16rem;
+			max-width: 46ch;
+			font-size: 0.875rem;
+			line-height: 1.5;
+			color: var(--text-secondary);
+			text-wrap: pretty;
+		}
+
+		/* Mismo botón principal que el hero */
+		.btn-primary {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+			min-height: 3rem;
+			padding-inline: 1.5rem 1.25rem;
+			border-radius: 9999px;
+			background: var(--accent);
+			color: var(--on-accent);
+			font-weight: 600;
+			cursor: pointer;
+			transition: transform 150ms var(--ease-out);
+		}
+
+		.btn-primary svg {
+			width: 1.125rem;
+			height: 1.125rem;
+		}
+
+		.btn-primary:active {
+			transform: scale(0.97);
+		}
+
+		/* Aviso tras preparar el correo */
+		.status {
+			margin-top: 1.5rem;
+			padding: 1.25rem;
+			border-radius: 1rem;
+			border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+			background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+			transition:
+				opacity 300ms var(--ease-out),
+				transform 300ms var(--ease-out);
+		}
+
+		@starting-style {
+			.status {
+				opacity: 0;
+				transform: translateY(6px);
+			}
+		}
+
+		@media (width >= 40rem) {
+			.status {
+				padding: 1.5rem;
+			}
+		}
+
+		.status-head {
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+		}
+
+		.status-icon {
+			display: grid;
+			place-items: center;
+			flex: none;
+			width: 2rem;
+			height: 2rem;
+			border-radius: 9999px;
+			background: var(--accent);
+			color: var(--on-accent);
+		}
+
+		.status-icon svg {
+			width: 1rem;
+			height: 1rem;
+		}
+
+		.status-title {
+			font-size: 1.125rem;
+			font-weight: 600;
+			line-height: 1.4;
+		}
+
+		/* Recibe el foco por script, no es un control: sin anillo */
+		.status-title:focus {
+			outline: none;
+		}
+
+		.status-text {
+			margin-top: 0.75rem;
+			line-height: 1.6;
+			color: var(--text-secondary);
+			text-wrap: pretty;
+		}
+
+		.status-long {
+			margin-top: 0.5rem;
+			font-size: 0.9375rem;
+			line-height: 1.5;
+			color: var(--text);
+			text-wrap: pretty;
+		}
+
+		.status-fallback {
+			margin-top: 1.25rem;
+			padding-top: 1.25rem;
+			border-top: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+			font-size: 0.9375rem;
+			line-height: 1.6;
+			color: var(--text-secondary);
+		}
+
+		/* Texto en --text (contraste AA); el acento va en el subrayado, como en el resto del sitio */
+		.contact-link {
+			color: var(--text);
+			font-weight: 600;
+			text-decoration: underline;
+			text-decoration-color: var(--accent);
+			text-underline-offset: 0.2em;
+			text-decoration-thickness: 1px;
+			overflow-wrap: anywhere;
+		}
+
+		.contact-link:hover {
+			text-decoration-thickness: 2px;
+		}
+
+		.status-actions {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+			margin-top: 1rem;
+		}
+
+		.btn-secondary {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+			min-height: 2.75rem;
+			padding-inline: 1rem 1.125rem;
+			border-radius: 9999px;
+			border: 1px solid var(--field-border);
+			background: var(--surface);
+			color: var(--text);
+			font-size: 0.9375rem;
+			font-weight: 600;
+			cursor: pointer;
+			transition:
+				border-color 150ms ease,
+				transform 150ms var(--ease-out);
+		}
+
+		.btn-secondary svg {
+			width: 1.125rem;
+			height: 1.125rem;
+		}
+
+		.btn-secondary .icon-done {
+			display: none;
+			color: var(--accent);
+		}
+
+		.btn-secondary[data-copied='true'] {
+			border-color: var(--accent);
+		}
+
+		.btn-secondary[data-copied='true'] .icon-copy {
+			display: none;
+		}
+
+		.btn-secondary[data-copied='true'] .icon-done {
+			display: block;
+		}
+
+		.btn-secondary:active {
+			transform: scale(0.97);
+		}
+
+		@media (hover: hover) and (pointer: fine) {
+			.btn-secondary:hover {
+				border-color: var(--text-secondary);
+			}
+		}
+
+		.manual {
+			margin-top: 1.25rem;
+		}
+
+		.manual-note {
+			font-weight: 500;
+			color: var(--text);
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.field,
+			.chip,
+			.chip-box,
+			.chip-box svg,
+			.chip-box--radio::after,
+			.btn-primary,
+			.btn-secondary,
+			.field-valid,
+			.field-valid path {
+				transition: none;
+			}
+
+			.chip:active,
+			.btn-primary:active,
+			.btn-secondary:active {
+				transform: none;
+			}
+
+			.status {
+				transition: opacity 150ms ease;
+			}
+
+			@starting-style {
+				.status {
+					transform: none;
+				}
+			}
+		}
+
+		@media (prefers-contrast: more) {
+			.brief {
+				--field-border: var(--text-secondary);
+			}
+		}
+	}
+</style>
