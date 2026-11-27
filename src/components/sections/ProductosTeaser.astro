@@ -1,12 +1,13 @@
 ---
 /**
- * Sección Productos de la home (#productos): título, intro, estado, botón a /productos y la ficha de aviso.
+ * Sección Productos de la home (#productos): título, intro, botón a /productos y la ficha de aviso.
+ * El estado (En desarrollo, Próximamente…) lo muestra cada ficha, no la sección.
  */
 import Container from '../layout/Container.astro';
 import ProductosListado from './ProductosListado.astro';
 import { site } from '../../content/site';
 
-const { id, title, intro, status, cta } = site.productos;
+const { id, title, intro, cta } = site.productos;
 ---
 
 <section id={id} aria-labelledby={`${id}-title`} class="py-section">
@@ -14,11 +15,6 @@ const { id, title, intro, status, cta } = site.productos;
 		<div>
 			<h2 id={`${id}-title`} class="section-title">{title}</h2>
 			<p class="mt-4 max-w-[38ch] text-lg leading-relaxed text-pretty text-text-secondary">{intro}</p>
-			<!-- Texto en --text (contraste AA); el acento va en el punto -->
-			<p data-section-status class="mt-6 inline-flex items-center gap-2 font-mono text-sm font-semibold text-text">
-				<span class="size-2 rounded-full bg-accent" aria-hidden="true"></span>
-				{status}
-			</p>
 			<div class="mt-8">
 				<a href={cta.href} class="productos-cta border border-border text-text hover:border-text-secondary hover:bg-surface">
 					{cta.label}

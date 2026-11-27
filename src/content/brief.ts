@@ -24,7 +24,7 @@ export const brief = {
 		correo: {
 			label: '¿A qué correo te respondemos?',
 			hint: 'Solo lo usamos para contestarte.',
-			placeholder: 'nombre@tuempresa.com',
+			placeholder: 'nombre@empresa.com',
 			// Título de la respuesta dentro del correo
 			summary: 'Correo de contacto',
 			// Verificación en vivo: aviso para lector de pantalla y sugerencia ante errores de dedo en el dominio
@@ -56,7 +56,7 @@ export const brief = {
 		tipo: {
 			label: '¿Qué tipo de solución buscas?',
 			hint: 'Elige todas las que apliquen.',
-			options: ['Plataforma web', 'App móvil', 'Sistema interno', 'Automatización', 'MVP o prototipo', 'Página web'],
+			options: ['Plataforma web', 'App móvil', 'Sistema interno', 'Automatización', 'Primera versión o prototipo', 'Página web'],
 			// Si se elige, las demás se desmarcan (y al revés)
 			unsure: 'Aún no lo sé',
 			detailLabel: '¿Algo más específico?',
@@ -67,7 +67,7 @@ export const brief = {
 		etapa: {
 			label: '¿En qué etapa está tu proyecto?',
 			hint: 'Elige la que más se parezca.',
-			options: ['Solo es una idea', 'Tengo bocetos o diseño', 'Ya existe y quiero mejorarlo', 'Tengo fecha de lanzamiento'],
+			options: ['Solo es una idea', 'Tengo bocetos o diseño', 'Ya existe y quiero mejorarlo', 'Ya empezó y necesito terminarlo'],
 			plazoLabel: '¿Para cuándo lo necesitas?',
 			plazoPlaceholder: 'Ej. En tres meses o sin prisa',
 			summary: 'Etapa y plazo',
@@ -103,7 +103,7 @@ export const brief = {
 	},
 
 	email: {
-		subject: (correo: string) => `Nuevo proyecto a medida — ${correo}`,
+		subject: (correo: string) => `Proyecto a la medida — ${correo}`,
 		greeting: 'Hola, equipo de JuniorLabs:',
 		opening: 'Les comparto mi proyecto.',
 		closing: 'Gracias, quedo pendiente de su respuesta.',
